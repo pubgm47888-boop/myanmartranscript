@@ -1,0 +1,1263 @@
+```html
+<!DOCTYPE html>
+<html lang="my" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOKER MEDIA ENGINE</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            purple: {
+              950: '#1e113a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Premium visual overrides */
+    body {
+      background-color: #060609;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      background: #9333ea;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #040406;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1e113a;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-gray-100 font-sans pb-16 selection:bg-purple-600 selection:text-white">
+
+  <!-- HEADER BAR -->
+  <header class="border-b border-purple-950/70 bg-[#020204]/90 sticky top-0 z-50 shadow-lg backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <svg class="w-10 h-10 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" viewBox="0 0 64 64" fill="none">
+          <path d="M32 4C20 4 12 16 12 28C12 36 16 42 22 46C20 48 18 52 18 56C24 56 28 52 32 50C36 52 40 56 46 56C46 52 44 48 42 46C48 42 52 36 52 28C52 16 44 4c-12 0z" fill="#151324" stroke="#7c3aed" stroke-width="2.5" />
+          <path d="M22 26C24 24 27 26 27 26M42 26C40 24 37 26 37 26" stroke="#ef4444" stroke-width="3" stroke-linecap="round" />
+          <path d="M18 36C22 44 42 44 46 36" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" />
+        </svg>
+        <div>
+          <h1 class="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-red-500 to-emerald-400 font-mono">
+            JOKER MEDIA ENGINE
+          </h1>
+          <p class="text-[9px] text-gray-500 font-mono tracking-widest uppercase">Premium Cloud Audio & Transcribe Engine</p>
+        </div>
+      </div>
+      <span class="hidden md:inline-block text-sm font-bold italic text-purple-600">
+        "Why So Serious?..."
+      </span>
+    </div>
+  </header>
+
+  <!-- DASHBOARD GRID VIEW -->
+  <main class="max-w-7xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- LEFT COLUMN: SIDEBAR -->
+    <section class="col-span-1 lg:col-span-4 space-y-5">
+      
+      <!-- API CONFIGURATION BOX -->
+      <div class="bg-[#0b0b10] border border-purple-950/80 rounded-xl p-5 shadow-xl space-y-4">
+        <div class="flex justify-between items-center border-b border-purple-900/30 pb-2">
+          <span class="text-xs font-bold text-emerald-400 font-mono flex items-center space-x-1.5">
+            <span>🔑</span>
+            <span>API Settings (ပြင်ပ Key သုံးရန်)</span>
+          </span>
+        </div>
+
+        <p class="text-[10px] text-gray-400 leading-relaxed">
+          * <b class="text-purple-400 font-bold">သီဟ</b>၊ <b class="text-purple-400 font-bold">နီလာ</b> နှင့် အင်္ဂလိပ်/ထိုင်း အသံများကို Key လုံးဝထည့်စရာမလိုဘဲ အမြဲတမ်း အခမဲ့ စမ်းသပ်နိုင်ပါသည်။ ကိုယ်ပိုင် Gemini Key ရှိပါကလည်း ထည့်သွင်းအသုံးပြုနိုင်ပါသည်။
+        </p>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-[10px] font-bold text-purple-400 uppercase tracking-wider mb-1">Gemini API Key</label>
+            <input
+              id="inputGeminiKey"
+              type="password"
+              placeholder="စနစ်၏ Built-in Free Key ကို သုံးရန် ကွက်လပ်ထားပါ"
+              class="w-full bg-[#040406] border border-purple-900/40 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">Groq API Key</label>
+            <input
+              id="inputGroqKey"
+              type="password"
+              placeholder="gsk_..."
+              class="w-full bg-[#040406] border border-[#10b981]/30 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+            />
+          </div>
+        </div>
+
+        <div class="flex space-x-2 pt-1">
+          <button
+            onclick="saveKeys()"
+            class="flex-1 bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold py-1.5 rounded-lg transition-all"
+          >
+            Save Keys
+          </button>
+          <button
+            onclick="resetKeys()"
+            class="bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs py-1.5 px-3 rounded-lg transition-all"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- ACTIVE TOOL SELECTOR -->
+      <div class="bg-[#0b0b10] border border-purple-950/80 rounded-xl p-5 shadow-xl space-y-3">
+        <h2 class="text-xs font-bold text-purple-400 font-mono uppercase tracking-wider border-b border-purple-900/30 pb-2 mb-2">
+          Select Active Tool (တစ်ခုရွေးပါ)
+        </h2>
+
+        <div class="flex flex-col space-y-2">
+          <!-- TTS BTN -->
+          <button
+            id="btn-tab-tts"
+            onclick="switchTab('tts')"
+            class="w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all bg-purple-950/30 border-purple-500 text-white shadow"
+          >
+            <div class="flex items-center space-x-2.5">
+              <span class="text-lg">🔊</span>
+              <div>
+                <span class="text-xs font-extrabold block">1. Speech Maker (TTS)</span>
+                <span class="text-[9px] text-gray-500">မြန်မာ နှင့် အခြားသော Free အသံများ</span>
+              </div>
+            </div>
+            <span id="dot-tts" class="text-purple-400">●</span>
+          </button>
+
+          <!-- TRANSLATE BTN -->
+          <button
+            id="btn-tab-translate"
+            onclick="switchTab('translate')"
+            class="w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all bg-[#040406] border-gray-900/80 text-gray-400 hover:text-white"
+          >
+            <div class="flex items-center space-x-2.5">
+              <span class="text-lg">🌐</span>
+              <div>
+                <span class="text-xs font-extrabold block">2. Myanmar Translator</span>
+                <span class="text-[9px] text-gray-500">တိုက်ရိုက် နှင့် နက်ရေတာ စတိုင်</span>
+              </div>
+            </div>
+            <span id="dot-translate" class="text-emerald-400 hidden">●</span>
+          </button>
+
+          <!-- TRANSCRIPT BTN -->
+          <button
+            id="btn-tab-transcript"
+            onclick="switchTab('transcript')"
+            class="w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all bg-[#040406] border-gray-900/80 text-gray-400 hover:text-white"
+          >
+            <div class="flex items-center space-x-2.5">
+              <span class="text-lg">📝</span>
+              <div>
+                <span class="text-xs font-extrabold block">3. Transcript Generator</span>
+                <span class="text-[9px] text-gray-500">အသံမှ စာသားပြောင်းရန်</span>
+              </div>
+            </div>
+            <span id="dot-transcript" class="text-purple-400 hidden">●</span>
+          </button>
+
+          <!-- SRT BTN -->
+          <button
+            id="btn-tab-srt"
+            onclick="switchTab('srt')"
+            class="w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all bg-[#040406] border-gray-900/80 text-gray-400 hover:text-white"
+          >
+            <div class="flex items-center space-x-2.5">
+              <span class="text-lg">🎬</span>
+              <div>
+                <span class="text-xs font-extrabold block">4. SRT Subtitle Maker</span>
+                <span class="text-[9px] text-gray-500">အချိန်ကိုက်စာတန်းထိုးစနစ်</span>
+              </div>
+            </div>
+            <span id="dot-srt" class="text-purple-400 hidden">●</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- SHARED MEDIA UPLOADER -->
+      <div class="bg-[#0b0b10] border border-purple-950/80 rounded-xl p-5 shadow-xl space-y-4">
+        <h2 class="text-xs font-bold text-purple-400 font-mono uppercase tracking-wider border-b border-purple-900/30 pb-2 mb-2">
+          Media Hub (ဖိုင်တင်ရန်)
+        </h2>
+
+        <div
+          onclick="document.getElementById('fileInput').click()"
+          class="border border-dashed border-purple-900/30 hover:border-purple-500 bg-[#040406]/60 rounded-xl p-6 text-center cursor-pointer transition-all hover:bg-[#040406]"
+        >
+          <input
+            type="file"
+            id="fileInput"
+            onchange="handleFileChange(event)"
+            accept="audio/*,video/*"
+            class="hidden"
+          />
+          <div class="space-y-1">
+            <span class="text-2xl block">🎬</span>
+            <p class="text-xs font-bold text-gray-300">ဗီဒီယို သို့မဟုတ် အသံဖိုင် တင်ရန် နှိပ်ပါ</p>
+            <p class="text-[9px] text-gray-500">Auto Audio Track Extractor Built-in</p>
+          </div>
+        </div>
+
+        <div id="extractionLoader" class="bg-purple-950/30 border border-purple-900/40 rounded-lg p-2 text-center text-[10px] text-purple-400 animate-pulse hidden">
+          <span class="inline-block animate-spin mr-1">⏳</span>
+          ဗီဒီယိုမှ အသံဖိုင်အား လျှော့ချဆွဲထုတ်နေပါသည်...
+        </div>
+
+        <div id="mediaDetailsCard" class="bg-[#040406] border border-purple-950/40 rounded-xl p-3 space-y-2 hidden">
+          <p id="mediaFileName" class="text-xs font-bold text-gray-200 truncate font-mono">📂 filename.mp3</p>
+          <p id="mediaFileSizeFormat" class="text-[9px] text-gray-500">Size: 0.00 MB | Format: MP3</p>
+          <div id="audioPlayerWrapper" class="hidden">
+            <audio id="mediaAudioPlayer" src="" controls class="w-full mt-2 h-7 accent-purple-600"></audio>
+          </div>
+          <div id="videoPlayerWrapper" class="hidden">
+            <video id="mediaVideoPlayer" src="" controls class="w-full max-h-24 bg-black mt-2 rounded"></video>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN: WORKSPACE -->
+    <section class="col-span-1 lg:col-span-8 space-y-5">
+      
+      <!-- NOTIFICATION LOG BANNERS -->
+      <div id="errorBanner" class="bg-red-950/30 border border-red-900/40 text-red-200 text-xs px-4 py-3 rounded-xl hidden">
+        ⚠️ <span id="errorText"></span>
+      </div>
+      <div id="successBanner" class="bg-emerald-950/30 border border-emerald-900/40 text-emerald-200 text-xs px-4 py-3 rounded-xl hidden">
+        ✓ <span id="successText"></span>
+      </div>
+
+      <!-- Master Processing Loader -->
+      <div id="masterLoader" class="bg-purple-950/20 border border-purple-900/30 rounded-xl p-4 flex items-center space-x-3 text-xs text-purple-300 hidden">
+        <svg class="animate-spin h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span id="masterLoaderMsg" class="font-bold text-emerald-400 font-mono"></span>
+      </div>
+
+      <!-- ACTIVE TOOL DISPLAY AREA -->
+      <div class="bg-[#0b0b10] border border-purple-950/80 rounded-2xl p-6 shadow-xl min-h-[400px] flex flex-col justify-between">
+        
+        <!-- TOOL 1: TTS SPEECH ENGINE -->
+        <div id="tool-container-tts" class="space-y-4 flex-1 flex flex-col justify-between">
+          <div class="space-y-1 border-b border-purple-900/20 pb-3">
+            <div class="flex justify-between items-center">
+              <h3 class="text-sm font-bold text-purple-400 font-mono">1. Speech Maker (Microsoft Edge TTS Premium)</h3>
+              <button
+                onclick="handleTTSGenerator()"
+                class="bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold px-5 py-2 rounded-lg transition-all shadow-md"
+              >
+                🔊 အသံထုတ်မယ်
+              </button>
+            </div>
+            <p class="text-[10px] text-gray-500 font-bold">အနိမ့်အမြင့် (Pitch) နှင့် အမြန်နှုန်း (Speed) များကို Telegram Bot ကဲ့သို့ ရာခိုင်နှုန်းအလိုက် စိတ်ကြိုက် ပြုပြင်ထုတ်လုပ်နိုင်ပါပြီ။</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-5 flex-1 py-2">
+            <div class="md:col-span-7 flex flex-col">
+              <label class="text-[9px] font-mono text-gray-500 uppercase tracking-wider block mb-1">Text content to speak (အသံထွက်ရန် စာသား)</label>
+              <textarea
+                id="ttsInput"
+                placeholder="အသံထုတ်လုပ်လိုသော စာသားများကို ဤနေရာတွင် ရိုက်ထည့်ပါ (အကန့်အသတ်မရှိ စာသားအရှည်ကြီးများ ထည့်နိုင်ပါသည်)..."
+                class="w-full flex-1 bg-[#040406] border border-purple-950/40 rounded-xl p-3 text-xs text-gray-200 min-h-[180px] focus:outline-none focus:border-purple-500 resize-none custom-scrollbar"
+              ></textarea>
+            </div>
+
+            <!-- Settings selectors -->
+            <div class="md:col-span-5 bg-[#040406] p-4 rounded-xl border border-purple-950/40 space-y-4 flex flex-col justify-between">
+              
+              <!-- Voice Select with Description -->
+              <div>
+                <span class="block text-[9px] font-mono text-gray-400 uppercase mb-2">Voice Selector (အသံရွေးချယ်ရန်)</span>
+                <select
+                  id="ttsVoiceSelect"
+                  onchange="updateVoiceDescription()"
+                  class="w-full bg-[#0b0b10] border border-purple-900/60 rounded-lg p-2 text-xs text-purple-300 focus:outline-none font-bold"
+                >
+                  <!-- Populated from Javascript voice list directly -->
+                </select>
+                <p id="ttsVoiceDesc" class="text-[9.5px] text-gray-500 mt-2 italic"></p>
+              </div>
+
+              <!-- Speed selection (-50% to +100%) -->
+              <div>
+                <div class="flex justify-between text-[9px] font-mono text-gray-400 uppercase mb-1">
+                  <span>Speed (အမြန်နှုန်း)</span>
+                  <span id="ttsSpeedLabel" class="text-purple-400 font-bold">0%</span>
+                </div>
+                <input
+                  id="ttsSpeed"
+                  type="range"
+                  min="-50"
+                  max="100"
+                  step="10"
+                  value="0"
+                  oninput="updateTtsLabels()"
+                  class="w-full accent-purple-600 cursor-pointer"
+                />
+              </div>
+
+              <!-- Pitch selection (-50Hz to +50Hz) -->
+              <div>
+                <div class="flex justify-between text-[9px] font-mono text-gray-400 uppercase mb-1">
+                  <span>Pitch (အနိမ့်အမြင့်)</span>
+                  <span id="ttsPitchLabel" class="text-purple-400 font-bold">0Hz</span>
+                </div>
+                <input
+                  id="ttsPitch"
+                  type="range"
+                  min="-50"
+                  max="50"
+                  step="2"
+                  value="0"
+                  oninput="updateTtsLabels()"
+                  class="w-full accent-purple-600 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Audio Output display -->
+          <div id="ttsOutputWrapper" class="p-4 bg-emerald-950/20 border border-emerald-900/40 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mt-2 hidden">
+            <div class="flex items-center space-x-2">
+              <span class="text-lg">🎉</span>
+              <span class="text-xs text-emerald-400 font-bold">မြန်မာအသံဖိုင် ထုတ်လုပ်မှု အောင်မြင်ပါသည်!</span>
+            </div>
+            <audio id="ttsAudioPlayer" src="" controls class="w-full md:max-w-xs h-7 accent-emerald-500"></audio>
+            <a
+              id="ttsDownloadLink"
+              href="#"
+              download="myanmar_voice.mp3"
+              class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-lg whitespace-nowrap transition-all shadow-md"
+            >
+              📥 Download MP3
+            </a>
+          </div>
+        </div>
+
+        <!-- TOOL 2: TRANSLATOR -->
+        <div id="tool-container-translate" class="space-y-4 flex-1 flex flex-col justify-between hidden">
+          <div class="space-y-1 border-b border-purple-900/20 pb-3">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+              <h3 class="text-sm font-bold text-emerald-400 font-mono">2. Gemini Multi-Language Translator</h3>
+              <button
+                onclick="handleTranslationGenerator()"
+                class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold px-6 py-2 rounded-lg transition-all shadow-md"
+              >
+                ဘာသာပြန်မယ်
+              </button>
+            </div>
+            <p class="text-[10px] text-gray-500 font-bold">ထည့်သွင်းထားသော Key ၏ ခွင့်ပြုချက်နှင့်အညီ Auto-Detect လုပ်ပေးသော Gemini Model ဖြင့် ဘာသာပြန်ဆိုပေးပါမည်။</p>
+          </div>
+
+          <!-- Alert / Warning Banner for Key Restrictions -->
+          <div id="modelWarningMessage" class="hidden text-[11px] bg-yellow-950/40 border border-yellow-800/50 text-yellow-300 p-2.5 rounded-lg font-mono">
+            <!-- Dynamically populated warning -->
+          </div>
+
+          <!-- Settings Grid bar for Translate -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-[#040406] p-3 rounded-xl border border-purple-900/20">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-[9px] font-mono text-gray-400 uppercase">Gemini Model ရွေးချယ်ရန်</label>
+                <span id="modelDetectionStatus" class="text-[9px] text-emerald-400 font-mono italic"></span>
+              </div>
+              <select
+                id="translationModel"
+                class="w-full bg-[#0b0b10] border border-purple-900/40 text-[11px] text-purple-300 rounded-lg p-2 focus:outline-none"
+              >
+                <option value="gemini-2.5-flash-preview-09-2025" selected>gemini-2.5-flash-preview-09-2025 (စနစ်သုံးအကြံပြုချက်)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[9px] font-mono text-gray-400 uppercase mb-1">ဘာသာပြန်ဆိုမှုပုံစံ</label>
+              <select
+                id="translationStyle"
+                class="w-full bg-[#0b0b10] border border-purple-900/40 text-[11px] text-purple-300 rounded-lg p-2 focus:outline-none"
+              >
+                <option value="direct">တိုက်ရိုက်ဘာသာပြန်ဆိုခြင်း (Direct style)</option>
+                <option value="narrator">နက်ရေတာစတိုင် ဘာသာပြန်ဆိုခြင်း (Narrator style)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[9px] font-mono text-gray-400 uppercase mb-1">စကားပြော/စာသားလေသံ</label>
+              <select
+                id="translationMode"
+                class="w-full bg-[#0b0b10] border border-emerald-900/40 text-[11px] text-emerald-400 rounded-lg p-2 focus:outline-none"
+              >
+                <option value="professional">Professional Mode (ရုံးသုံး/စာပေဆန်ဆန်)</option>
+                <option value="conversational">Conversational Mode (ပေါ့ပေါ့ပါးပါး/စကားပြောသံ)</option>
+                <option value="subtitles">Subtitles Mode (ဗီဒီယိုစာတန်းထိုးပုံစံ)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 py-2">
+            <div class="flex flex-col">
+              <label class="text-[9px] font-mono text-gray-500 uppercase tracking-wider block mb-1">Source Text (မူရင်းစာသား)</label>
+              <textarea
+                id="translationInput"
+                placeholder="ဘာသာပြန်ရန် စာသားများကို ဤနေရာတွင် ရိုက်ထည့်ပါ သို့မဟုတ် Transcript ထုတ်ယူပြီးပါက အလိုအလျောက် ရောက်ရှိပါမည်..."
+                class="w-full bg-[#040406] border border-purple-950/30 rounded-xl p-3 text-xs text-gray-300 h-64 focus:outline-none focus:border-emerald-500 resize-none custom-scrollbar"
+              ></textarea>
+            </div>
+
+            <div class="flex flex-col">
+              <label class="text-[9px] font-mono text-gray-500 uppercase tracking-wider block mb-1">Myanmar Translation (မြန်မာပြန်ဆိုချက်)</label>
+              <textarea
+                id="translationOutput"
+                readonly
+                placeholder="မြန်မာပြန်ဆိုချက်များ ဤနေရာတွင် ထွက်လာပါမည်..."
+                class="w-full bg-[#040406] border border-purple-950/30 rounded-xl p-3 text-xs text-emerald-400 h-64 focus:outline-none resize-none custom-scrollbar"
+              ></textarea>
+            </div>
+          </div>
+
+          <div id="translateFlowWrapper" class="flex justify-between items-center bg-[#040406] p-3 rounded-xl border border-purple-950/40 mt-2 hidden">
+            <span class="text-[10px] text-gray-400 font-mono font-bold">⚡ Quick Flow: ဤဘာသာပြန်စာသားများကို Speech (TTS) ထဲသို့ ပို့မည်</span>
+            <div class="flex space-x-2">
+              <button
+                onclick="handleSendTranslationToTTS()"
+                class="bg-purple-950 hover:bg-purple-900 text-purple-400 border border-purple-900/60 text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all"
+              >
+                အသံထုတ်မယ် ➔
+              </button>
+              <button
+                onclick="downloadTranslationFile()"
+                class="bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-900/60 text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all"
+              >
+                📥 Save File
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOOL 3: TRANSCRIPT GENERATOR -->
+        <div id="tool-container-transcript" class="space-y-4 flex-1 flex flex-col justify-between hidden">
+          <div class="space-y-1 border-b border-purple-900/20 pb-3">
+            <div class="flex justify-between items-center">
+              <h3 class="text-sm font-bold text-purple-400 font-mono">3. Speech-to-Text Transcript Generator</h3>
+              <button
+                onclick="handleTranscriptGenerator()"
+                class="bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-md"
+              >
+                Transcript ထုတ်မယ်
+              </button>
+            </div>
+            <p class="text-[10px] text-gray-500">တင်သွင်းထားသောအသံဖိုင်မှ စကားပြောစာသားများကို အလိုအလျောက်ပြောင်းထုတ်ပေးပါမည်။</p>
+          </div>
+
+          <div class="flex-1 py-2">
+            <label class="text-[9px] font-mono text-gray-500 uppercase tracking-wider block mb-1">Transcript Output</label>
+            <textarea
+              id="transcriptOutput"
+              readonly
+              placeholder="ရလဒ်များကို ဤနေရာတွင် ထုတ်ပြပေးမည်ဖြစ်သည် (အပေါ်က 'Transcript ထုတ်မယ်' ခလုတ်ကို နှိပ်ပါ)..."
+              class="w-full bg-[#040406] border border-purple-950/60 rounded-xl p-4 text-xs font-mono text-gray-300 h-64 focus:outline-none focus:border-purple-500 resize-y custom-scrollbar"
+            ></textarea>
+          </div>
+
+          <div id="transcriptFlowWrapper" class="flex justify-between items-center bg-[#040406] p-3 rounded-xl border border-purple-950/40 mt-2 hidden">
+            <span class="text-[10px] text-gray-400 font-mono font-bold">⚡ Quick Flow: ဤစာသားများကို Translator ထဲသို့ ပို့မည်</span>
+            <div class="flex space-x-2">
+              <button
+                onclick="handleSendTranscriptToTranslator()"
+                class="bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-900/60 text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all"
+              >
+                ခေါ်ယူဘာသာပြန်မယ် ➔
+              </button>
+              <button
+                onclick="downloadTranscriptFile()"
+                class="bg-purple-950 hover:bg-purple-900 text-purple-400 border border-purple-900/60 text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all"
+              >
+                📥 Save File
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOOL 4: SRT SUBTITLE -->
+        <div id="tool-container-srt" class="space-y-4 flex-1 flex flex-col justify-between hidden">
+          <div class="space-y-1 border-b border-purple-900/20 pb-3">
+            <div class="flex justify-between items-center">
+              <h3 class="text-sm font-bold text-purple-400 font-mono">4. SRT Subtitles Generator</h3>
+              <button
+                onclick="handleSRTGenerator()"
+                class="bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-md"
+              >
+                srt ထုတ်မယ်
+              </button>
+            </div>
+            <p class="text-[10px] text-gray-500">တင်သွင်းထားသောအသံဖိုင်မှ အချိန်ကိုက် စာတန်းထိုး Subtitles (SRT) ဖိုင်ကို တိုက်ရိုက်ထုတ်ပေးပါမည်။</p>
+          </div>
+
+          <div class="flex-1 py-2">
+            <label class="text-[9px] font-mono text-gray-500 uppercase tracking-wider block mb-1">Generated SRT Subtitles</label>
+            <textarea
+              id="srtOutput"
+              readonly
+              placeholder="ရလဒ်များကို ဤနေရာတွင် ထုတ်ပြပေးမည်ဖြစ်သည် (အပေါ်က 'srt ထုတ်မယ်' ခလုတ်ကို နှိပ်ပါ)..."
+              class="w-full bg-[#040406] border border-purple-950/60 rounded-xl p-4 text-xs font-mono text-emerald-300 min-h-[220px] focus:outline-none focus:border-purple-500 resize-y custom-scrollbar"
+            ></textarea>
+          </div>
+
+          <div id="srtFlowWrapper" class="flex justify-end mt-2 hidden">
+            <button
+              onclick="downloadSrtFile()"
+              class="bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-900/60 text-xs font-bold px-4 py-2 rounded-xl transition-all"
+            >
+              📥 Download SRT File
+            </button>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="text-center text-[10px] text-gray-600 border-t border-purple-950/40 pt-4 mt-6">
+          Joker Media Engine is powered by Microsoft Edge TTS & Groq Whisper Large V3
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- BUSINESS LOGIC JAVASCRIPT -->
+  <script>
+    // Platform runtime API key definition (Internal base key)
+    const apiKey = "";
+
+    // App state configuration
+    let geminiKey = localStorage.getItem('joker_gemini_key') || '';
+    let groqKey = localStorage.getItem('joker_groq_key') || '';
+    
+    let activeTool = 'tts';
+    let mediaFile = null;
+    let mediaUrl = '';
+    let extractedAudio = null;
+    let isExtracting = false;
+
+    let transcriptOutputVal = '';
+    let translationOutputVal = '';
+    let srtOutputVal = '';
+
+    // ရနိုင်သမျှ Free Edge-TTS အသံများ စာရင်း
+    const VOICE_LIST = {
+      "nilar": {"id": "my-MM-NilarNeural", "name": "🎙️ မနီလာ (မြန်မာ)", "desc": "မြန်မာအမျိုးသမီးသံ - သဘာဝကျပြီး ယဉ်ကျေးပျော့ပျောင်းသောလေသံ"},
+      "thiha": {"id": "my-MM-ThihaNeural", "name": "🎙️ မောင်သီဟ (မြန်မာ)", "desc": "မြန်မာအမျိုးသားသံ - တည်ငြိမ်ပြီး စကားပြောပြတ်သားသောလေသံ"},
+      "ava": {"id": "en-US-AvaNeural", "name": "🇺🇸 Ms. Ava (US)", "desc": "အမေရိကန်အမျိုးသမီးသံ - သွက်လက်ချက်ချာသော လေသံ"},
+      "andrew": {"id": "en-US-AndrewNeural", "name": "🇺🇸 Mr. Andrew (US)", "desc": "အမေရိကန်အမျိုးသားသံ - ပရော်ဖက်ရှင်နယ်ကျသော လေသံ"},
+      "emma": {"id": "en-GB-SoniaNeural", "name": "🇬🇧 Ms. Sonia (UK)", "desc": "ဗြိတိန်အမျိုးသမီးသံ - ယဉ်ကျေးပြတ်သားသော အင်္ဂလိပ်လေယူလေသိမ်း"},
+      "brian": {"id": "en-GB-RyanNeural", "name": "🇬🇧 Mr. Ryan (UK)", "desc": "ဗြိတိန်အမျိုးသားသံ - နက်ရှိုင်းပြီး အသံဩဇာရှိသော လေသံ"},
+      "prem": {"id": "th-TH-PremwadeeNeural", "name": "🇹🇭 မပရမ်ဝတီ (Thai)", "desc": "ထိုင်းအမျိုးသမီးသံ - သဘာဝကျသော ထိုင်းဘာသာစကားလေသံ"}
+    };
+
+    // Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('inputGeminiKey').value = geminiKey;
+      document.getElementById('inputGroqKey').value = groqKey;
+
+      // Populate voice options
+      const voiceSelect = document.getElementById('ttsVoiceSelect');
+      Object.keys(VOICE_LIST).forEach(key => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.innerText = VOICE_LIST[key].name;
+        voiceSelect.appendChild(option);
+      });
+      
+      updateVoiceDescription();
+      checkGeminiKeyStatus(); // Run check for key constraints
+    });
+
+    // Clean API Formatting Helpers
+    function sanitizeKeyString(str) {
+      if (!str) return "";
+      return str.replace(/[^\x20-\x7E]/g, "").trim();
+    }
+
+    // Dynamic warning and safety configurations based on Key input
+    async function checkGeminiKeyStatus() {
+      const modelSelect = document.getElementById('translationModel');
+      const warningEl = document.getElementById('modelWarningMessage');
+      const statusEl = document.getElementById('modelDetectionStatus');
+      const hasCustomKey = geminiKey.trim() !== '';
+
+      if (!hasCustomKey) {
+        // Enforce gemini-2.5-flash-preview-09-2025 to prevent proxy crashes
+        modelSelect.innerHTML = `<option value="gemini-2.5-flash-preview-09-2025" selected>gemini-2.5-flash-preview-09-2025 (စနစ်သုံးအကြံပြုချက်)</option>`;
+        statusEl.innerText = "(Free Mode)";
+        statusEl.className = "text-[9px] text-purple-400 font-mono italic";
+
+        warningEl.innerHTML = "⚠️ <b>စနစ်၏ Built-in Free Key ကို သုံးနေပါသည်:</b> API ကန့်သတ်ချက်ကြောင့် <b class='text-purple-400'>'gemini-2.5-flash-preview-09-2025'</b> model တစ်ခုတည်းကိုသာ ခွင့်ပြုထားပါသည်။ အခြား Model များကို သုံးလိုပါက API Settings တွင် သင်၏ကိုယ်ပိုင် Gemini Key ကို ထည့်သွင်းသိမ်းဆည်းပေးပါ။";
+        warningEl.classList.remove('hidden');
+      } else {
+        statusEl.innerText = "စစ်ဆေးနေသည်... 🔍";
+        statusEl.className = "text-[9px] text-yellow-400 font-mono italic animate-pulse";
+        
+        // Fetch dynamically from server based on Custom Key!
+        await autoDiscoverModels(sanitizeKeyString(geminiKey));
+      }
+    }
+
+    // Automatic Model Discovery using the ListModels API
+    async function autoDiscoverModels(customKey) {
+      const modelSelect = document.getElementById('translationModel');
+      const warningEl = document.getElementById('modelWarningMessage');
+      const statusEl = document.getElementById('modelDetectionStatus');
+
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${customKey}`;
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error("API Key မမှန်ကန်ပါ သို့မဟုတ် List API ခေါ်၍မရပါ");
+        }
+
+        const data = await response.json();
+        
+        // Filter models that support content generation (generateContent method)
+        const supportedModels = (data.models || []).filter(m => {
+          const supportsGeneration = m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent');
+          const isStandardGemini = m.name && (m.name.includes('gemini-') || m.name.includes('models/gemini'));
+          return supportsGeneration && isStandardGemini;
+        });
+
+        if (supportedModels.length === 0) {
+          throw new Error("သင့်လျော်သော Gemini Models မတွေ့ရှိပါ");
+        }
+
+        // Re-build select options
+        modelSelect.innerHTML = "";
+        supportedModels.forEach((model, idx) => {
+          const cleanName = model.name.replace('models/', '');
+          const opt = document.createElement('option');
+          opt.value = cleanName;
+          opt.innerText = cleanName + (idx === 0 ? " (Auto-detected)" : "");
+          if (cleanName === 'gemini-2.5-flash' || cleanName === 'gemini-1.5-flash') {
+            opt.selected = true; // Select standard flash models first if present
+          }
+          modelSelect.appendChild(opt);
+        });
+
+        statusEl.innerText = `တွေ့ရှိသည် [${supportedModels.length} ခု] ✓`;
+        statusEl.className = "text-[9px] text-emerald-400 font-mono italic";
+
+        warningEl.innerHTML = `✓ <b>ကိုယ်ပိုင် API Key အတည်ပြုပြီးပါပြီ:</b> သင့် Key နှင့် ကိုက်ညီသော Models ပေါင်း <b class='text-emerald-400'>${supportedModels.length} ခု</b> ကို အောင်မြင်စွာ အလိုအလျောက် ရှာဖွေစစ်ဆေးတွေ့ရှိပြီး စာရင်းထဲသို့ ထည့်သွင်းပေးလိုက်ပါပြီ။`;
+        warningEl.classList.remove('hidden');
+
+      } catch (err) {
+        // Safe Fallback list if the API block list doesn't return properly
+        modelSelect.innerHTML = `
+          <option value="gemini-2.5-flash" selected>gemini-2.5-flash (အမြန်ဆန်ဆုံး)</option>
+          <option value="gemini-1.5-flash">gemini-1.5-flash (တည်ငြိမ်)</option>
+          <option value="gemini-1.5-pro">gemini-1.5-pro (အဆင့်မြင့်ဆုံး)</option>
+          <option value="gemini-2.5-flash-preview-09-2025">gemini-2.5-flash-preview-09-2025</option>
+        `;
+
+        statusEl.innerText = "Fallback Loaded ⚠️";
+        statusEl.className = "text-[9px] text-yellow-500 font-mono italic";
+
+        warningEl.innerHTML = "⚠️ <b>API Key စစ်ဆေးရန် ခေတ္တအဆင်မပြေပါ:</b> သို့သော် Dropdown ထဲတွင် ပုံမှန်အသုံးပြုနိုင်သည့် Models များကို Safe Fallback အဖြစ် ပြသပေးထားပါသည်။ စိတ်ကြိုက်ရွေးချယ်သုံးနိုင်ပါသည်။";
+        warningEl.classList.remove('hidden');
+      }
+    }
+
+    function getActiveGeminiKey() {
+      const trimmed = geminiKey.trim();
+      return trimmed ? sanitizeKeyString(trimmed) : apiKey;
+    }
+
+    // Save and Reset Keys Operations
+    async function saveKeys() {
+      const gKeyInput = document.getElementById('inputGeminiKey').value;
+      const grKeyInput = document.getElementById('inputGroqKey').value;
+
+      geminiKey = sanitizeKeyString(gKeyInput);
+      groqKey = sanitizeKeyString(grKeyInput);
+
+      localStorage.setItem('joker_gemini_key', geminiKey);
+      localStorage.setItem('joker_groq_key', groqKey);
+
+      showSuccess('API Keys များကို သန့်စင်ပြီး အောင်မြင်စွာ သိမ်းဆည်းလိုက်ပါပြီ။ 🔍 Models များကို စစ်ဆေးနေသည်...');
+      hideError();
+      await checkGeminiKeyStatus(); // Refresh restriction and auto-detection states
+    }
+
+    async function resetKeys() {
+      geminiKey = '';
+      groqKey = '';
+      document.getElementById('inputGeminiKey').value = '';
+      document.getElementById('inputGroqKey').value = '';
+
+      localStorage.removeItem('joker_gemini_key');
+      localStorage.removeItem('joker_groq_key');
+
+      showSuccess('API Keys များကို ရှင်းလင်းပြီးပါပြီ။ စနစ်၏ Built-in Free Key ကို သုံးနိုင်ပါသည်။');
+      hideError();
+      await checkGeminiKeyStatus(); // Refresh restriction states
+    }
+
+    // Tab switcher
+    function switchTab(tabId) {
+      activeTool = tabId;
+      
+      const tabs = ['tts', 'translate', 'transcript', 'srt'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`btn-tab-${t}`);
+        const dot = document.getElementById(`dot-${t}`);
+        const container = document.getElementById(`tool-container-${t}`);
+
+        if (t === tabId) {
+          btn.className = `w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all bg-purple-950/30 border-purple-500 text-white shadow`;
+          dot.classList.remove('hidden');
+          container.classList.remove('hidden');
+        } else {
+          btn.className = `w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all bg-[#040406] border-gray-900/80 text-gray-400 hover:text-white`;
+          dot.classList.add('hidden');
+          container.classList.add('hidden');
+        }
+      });
+    }
+
+    // Audio extractor algorithm
+    async function extractAudioFromMedia(file) {
+      return new Promise((resolve, reject) => {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const reader = new FileReader();
+
+        reader.onload = async (e) => {
+          try {
+            const arrayBuffer = e.target.result;
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            const offlineCtx = new OfflineAudioContext(1, audioBuffer.duration * 16000, 16000);
+            const bufferSource = offlineCtx.createBufferSource();
+            bufferSource.buffer = audioBuffer;
+            bufferSource.connect(offlineCtx.destination);
+            bufferSource.start();
+
+            const renderedBuffer = await offlineCtx.startRendering();
+            const wavBlob = audioBufferToWav(renderedBuffer);
+            const audioFileName = file.name.substring(0, file.name.lastIndexOf('.')) + '.wav';
+            resolve(new File([wavBlob], audioFileName, { type: 'audio/wav' }));
+          } catch (err) {
+            reject(new Error('ဗီဒီယိုမှ အသံဖိုင်ဆွဲထုတ်ရန် မဖြစ်နိုင်ပါ: ' + err.message));
+          }
+        };
+        reader.onerror = () => reject(new Error('ဖိုင်ဖတ်၍မရပါ'));
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    function audioBufferToWav(buffer) {
+      const numOfChan = buffer.numberOfChannels;
+      const sampleRate = buffer.sampleRate;
+      const format = 1;
+      const bitDepth = 16;
+      const result = buffer.getChannelData(0);
+      const bufferLength = result.length * 2;
+      const wavBuffer = new ArrayBuffer(44 + bufferLength);
+      const view = new DataView(wavBuffer);
+      
+      const writeString = (view, offset, string) => {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      };
+
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 36 + bufferLength, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, format, true);
+      view.setUint16(22, numOfChan, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * numOfChan * (bitDepth / 8), true);
+      view.setUint16(32, numOfChan * (bitDepth / 8), true);
+      view.setUint16(34, bitDepth, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, bufferLength, true);
+      
+      for (let i = 0; i < result.length; i++) {
+        let s = Math.max(-1, Math.min(1, result[i]));
+        view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+      
+      return new Blob([wavBuffer], { type: 'audio/wav' });
+    }
+
+    async function handleFileChange(e) {
+      const file = e.target.files[0];
+      if (file) {
+        mediaFile = file;
+        if (mediaUrl) URL.revokeObjectURL(mediaUrl);
+        mediaUrl = URL.createObjectURL(file);
+        
+        hideError();
+        hideSuccess();
+        extractedAudio = null;
+
+        // UI rendering for the media card
+        document.getElementById('mediaDetailsCard').classList.remove('hidden');
+        document.getElementById('mediaFileName').innerText = `📂 ${file.name}`;
+        document.getElementById('mediaFileSizeFormat').innerText = `Size: ${(file.size / 1024 / 1024).toFixed(2)} MB | Format: ${file.type.split('/')[1]?.toUpperCase() || 'UNKNOWN'}`;
+
+        if (file.type.startsWith('video/')) {
+          document.getElementById('audioPlayerWrapper').classList.add('hidden');
+          document.getElementById('videoPlayerWrapper').classList.remove('hidden');
+          document.getElementById('mediaVideoPlayer').src = mediaUrl;
+
+          try {
+            document.getElementById('extractionLoader').classList.remove('hidden');
+            const audio = await extractAudioFromMedia(file);
+            extractedAudio = audio;
+            showSuccess('ဗီဒီယိုမှ အသံဖိုင်အား အောင်မြင်စွာ ဆွဲထုတ်ပြီးပါပြီ။');
+          } catch (err) {
+            showError(err.message);
+          } finally {
+            document.getElementById('extractionLoader').classList.add('hidden');
+          }
+        } else {
+          document.getElementById('videoPlayerWrapper').classList.add('hidden');
+          document.getElementById('audioPlayerWrapper').classList.remove('hidden');
+          document.getElementById('mediaAudioPlayer').src = mediaUrl;
+          extractedAudio = file;
+        }
+      }
+    }
+
+    // Dynamic label updater
+    function updateTtsLabels() {
+      const speed = parseInt(document.getElementById('ttsSpeed').value);
+      const pitch = parseInt(document.getElementById('ttsPitch').value);
+      document.getElementById('ttsSpeedLabel').innerText = (speed >= 0 ? "+" : "") + speed + "%";
+      document.getElementById('ttsPitchLabel').innerText = (pitch >= 0 ? "+" : "") + pitch + "Hz";
+    }
+
+    function updateVoiceDescription() {
+      const voiceKey = document.getElementById('ttsVoiceSelect').value;
+      const voiceObj = VOICE_LIST[voiceKey];
+      if (voiceObj) {
+        document.getElementById('ttsVoiceDesc').innerText = voiceObj.desc;
+      }
+    }
+
+    // =========================================================================
+    // VERCEL SELF-HOSTED EDGE TTS SYSTEM
+    // =========================================================================
+    async function handleTTSGenerator() {
+      hideError();
+      hideSuccess();
+      document.getElementById('ttsOutputWrapper').classList.add('hidden');
+
+      const rawInput = document.getElementById('ttsInput').value.trim();
+      if (!rawInput) {
+        showError('ကျေးဇူးပြု၍ အသံထုတ်လုပ်လိုသော စာသားများကို ရေးသားပေးပါ!');
+        return;
+      }
+
+      showLoader('အဆင်မြင့် အမြန်ဆုံး Edge TTS စနစ်ဖြင့် မြန်မာအသံဖိုင်ကို တည်ဆောက်နေပါသည်...');
+
+      const ttsVoiceKey = document.getElementById('ttsVoiceSelect').value;
+      const voiceId = VOICE_LIST[ttsVoiceKey].id;
+      
+      const speedValue = parseInt(document.getElementById('ttsSpeed').value);
+      const pitchValue = parseInt(document.getElementById('ttsPitch').value);
+
+      const rateStr = (speedValue >= 0 ? "+" : "") + speedValue + "%";
+      const pitchStr = (pitchValue >= 0 ? "+" : "") + pitchValue + "Hz";
+
+      try {
+        // သင့် Vercel Serverless Function (api/tts.js) သို့ တိုက်ရိုက် ဦးတည်ခေါ်ဆိုခြင်း
+        const endpoint = `/api/tts?voice=${voiceId}&rate=${encodeURIComponent(rateStr)}&pitch=${encodeURIComponent(pitchStr)}&text=${encodeURIComponent(rawInput)}`;
+        
+        const response = await fetch(endpoint);
+        if (!response.ok) {
+          throw new Error("Edge TTS Server အဝေးလှမ်းခေါ်မှု ယာယီအဆင်မပြေပါ။ ဖုန်း/စက်တွင်း (Local Engine) ဖြင့် အစားထိုးဖတ်ကြားပေးပါမည်။");
+        }
+
+        const audioBlob = await response.blob();
+        const finalAudioUrl = URL.createObjectURL(audioBlob);
+
+        // Render Output
+        const player = document.getElementById('ttsAudioPlayer');
+        player.src = finalAudioUrl;
+        
+        const dlLink = document.getElementById('ttsDownloadLink');
+        dlLink.href = finalAudioUrl;
+        dlLink.download = `${ttsVoiceKey}_voice_output.mp3`;
+
+        document.getElementById('ttsOutputWrapper').classList.remove('hidden');
+        showSuccess(`အသံဖိုင် (${VOICE_LIST[ttsVoiceKey].name}) ကို အောင်မြင်စွာ တိုက်ရိုက်ထုတ်လုပ်ပြီးပါပြီ။ 🔊`);
+      } catch (err) {
+        showError(`TTS Error: ${err.message}`);
+        // Fallback to Web Speech Synthesis instantly
+        handleLocalFallbackTTS(rawInput, ttsVoiceKey, speedValue);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // Web Speech API Fallback
+    function handleLocalFallbackTTS(text, voiceKey, speedPercent) {
+      if (typeof speechSynthesis === 'undefined') return;
+      speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      const localSpeed = 1.0 + (speedPercent / 100);
+      utterance.rate = Math.max(0.5, Math.min(2.0, localSpeed));
+
+      const localVoices = speechSynthesis.getVoices();
+      const myanmarVoice = localVoices.find(v => v.lang.includes('my') || v.lang.includes('MM'));
+      if (myanmarVoice) {
+        utterance.voice = myanmarVoice;
+      }
+
+      utterance.onend = () => {
+        showSuccess("စက်တွင်း အရန်အသံစနစ်ဖြင့် ဖတ်ကြားပြီးစီးပါပြီ။");
+      };
+
+      speechSynthesis.speak(utterance);
+    }
+
+    // =========================================================================
+    // 2. MYANMAR TRANSLATOR ENGINE
+    // =========================================================================
+    async function handleTranslationGenerator() {
+      hideError();
+      hideSuccess();
+
+      const translationInput = document.getElementById('translationInput').value.trim();
+
+      if (!translationInput) {
+        showError('ကျေးဇူးပြု၍ ဘာသာပြန်ဆိုလိုသော မူရင်းစာသားများကို ရေးသားထည့်သွင်းပေးပါ!');
+        return;
+      }
+
+      showLoader('Gemini Engine ဖြင့် မြန်မာဘာသာသို့ အမြန်ပြန်ဆိုနေပါသည်...');
+
+      const selectedModel = document.getElementById('translationModel').value;
+      const translationStyle = document.getElementById('translationStyle').value;
+      const translationMode = document.getElementById('translationMode').value;
+
+      let styleInstruction = "";
+      if (translationStyle === 'direct') {
+        styleInstruction = "Direct literal translation. Keep structural integrity and exact meanings. No extra fluff.";
+      } else {
+        styleInstruction = "Narrator style. Smooth storytelling, poetic and natural flow in Burmese.";
+      }
+
+      let toneInstruction = "";
+      if (translationMode === 'professional') {
+        toneInstruction = "Use polished, polite, official Burmese spelling and grammatical rules.";
+      } else if (translationMode === 'conversational') {
+        toneInstruction = "Use natural spoken colloquial Burmese dialect.";
+      } else {
+        toneInstruction = "Use compact, punchy subtitle formatting.";
+      }
+
+      try {
+        const activeKey = getActiveGeminiKey();
+        const systemPrompt = `You are an expert English-to-Myanmar translator. Keep answers concise, and return ONLY the translated output without meta-commentary or polite introductions.`;
+        
+        const userPrompt = `Constraints:
+- Style: ${styleInstruction}
+- Tone: ${toneInstruction}
+
+Translate this content to Burmese:
+${translationInput}`;
+
+        const payload = { 
+          contents: [{ parts: [{ text: userPrompt }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] }
+        };
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${activeKey}`;
+        
+        // 5 Retries with Backoff
+        let delay = 1000;
+        let data;
+        let responseOk = false;
+        for (let i = 0; i < 5; i++) {
+          try {
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+              data = await response.json();
+              responseOk = true;
+              break;
+            }
+          } catch (e) {
+            if (i === 4) throw e;
+          }
+          await new Promise(r => setTimeout(r, delay));
+          delay *= 2;
+        }
+
+        if (!responseOk) throw new Error("ဘာသာပြန်ဆာဗာ တုံ့ပြန်မှုမရှိပါ။ API key ကို စစ်ဆေးပါ။");
+
+        const textResult = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (!textResult) {
+          throw new Error('Gemini ထံမှ စာသားတုံ့ပြန်မှု မရရှိပါ။ Model အား အခြားတစ်ခုသို့ ပြောင်းရွေးကြည့်ပါ။');
+        }
+
+        translationOutputVal = textResult;
+        document.getElementById('translationOutput').value = textResult;
+
+        document.getElementById('translateFlowWrapper').classList.remove('hidden');
+        showSuccess(`ဘာသာပြန်ဆိုမှု ပြီးမြောက်ပါပြီ။ 🌐`);
+      } catch (err) {
+        showError(`ဘာသာပြန် Error: ${err.message}. Dropdown တွင် အခြား Model တစ်ခုခုကို ပြောင်းရွေးကြည့်ပါ။`);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // =========================================================================
+    // 3. TRANSCRIPT GENERATOR
+    // =========================================================================
+    async function handleTranscriptGenerator() {
+      hideError();
+      hideSuccess();
+
+      const cleanGroqKey = sanitizeKeyString(groqKey);
+
+      if (!cleanGroqKey) {
+        showError('Groq API Key မရှိသေးပါ။ Sidebar အောက်ခြေရှိ API Key Box တွင် ထည့်သွင်းသိမ်းဆည်းပေးပါ!');
+        return;
+      }
+      if (!extractedAudio) {
+        showError('ကျေးဇူးပြု၍ Media Hub တွင် အသံ သို့မဟုတ် ဗီဒီယိုဖိုင် အရင်ဆုံး တင်သွင်းပေးပါ!');
+        return;
+      }
+
+      showLoader('Groq Whisper Large V3 ဖြင့် အသံမှ စာသားပြောင်းလဲနေသည်...');
+
+      try {
+        const formData = new FormData();
+        formData.append('file', extractedAudio);
+        formData.append('model', 'whisper-large-v3');
+        formData.append('response_format', 'json');
+
+        let response;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+              method: 'POST',
+              headers: { 
+                'Authorization': `Bearer ${cleanGroqKey}`
+              },
+              body: formData
+            });
+            if (response.ok) break;
+          } catch (e) {
+            if (attempt === 2) throw e;
+          }
+          await new Promise(r => setTimeout(r, 2000));
+        }
+
+        if (!response || !response.ok) throw new Error('အသံဖိုင်အား စာသားပြောင်းလဲခြင်း မအောင်မြင်ပါ။ API Key ကို ပြန်လည်စစ်ဆေးပါ။');
+
+        const data = await response.json();
+        transcriptOutputVal = data.text;
+        document.getElementById('transcriptOutput').value = data.text;
+
+        document.getElementById('transcriptFlowWrapper').classList.remove('hidden');
+        showSuccess('အသံမှ စာသားထုတ်ယူမှု အောင်မြင်ပါသည်။ 📝');
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // =========================================================================
+    // 4. SRT SUBTITLES GENERATOR
+    // =========================================================================
+    function convertVerboseJsonToSrt(data) {
+      if (!data || !data.segments || data.segments.length === 0) {
+        return `1\n00:00:00,000 --> 00:00:05,000\n${data.text || "အသံဖိုင်တွင် စကားပြောသံ ရှာမတွေ့ပါ။"}`;
+      }
+
+      const formatSrtTime = (seconds) => {
+        const pad = (num, size) => String(num).padStart(size, '0');
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+        const ms = Math.floor((seconds % 1) * 1000);
+        return `${pad(hrs, 2)}:${pad(mins, 2)}:${pad(secs, 2)},${pad(ms, 3)}`;
+      };
+
+      return data.segments
+        .map((segment, index) => {
+          const id = index + 1;
+          const start = formatSrtTime(segment.start);
+          const end = formatSrtTime(segment.end);
+          const text = segment.text.trim();
+          return `${id}\n${start} --> ${end}\n${text}\n`;
+        })
+        .join('\n');
+    }
+
+    async function handleSRTGenerator() {
+      hideError();
+      hideSuccess();
+      document.getElementById('srtOutput').value = '';
+
+      const cleanGroqKey = sanitizeKeyString(groqKey);
+
+      if (!cleanGroqKey) {
+        showError('Groq API Key မရှိသေးပါ။ Sidebar အောက်ခြေရှိ API Key Box တွင် ထည့်သွင်းသိမ်းဆည်းပေးပါ!');
+        return;
+      }
+      if (!extractedAudio) {
+        showError('ကျေးဇူးပြု၍ Media Hub တွင် အသံ သို့မဟုတ် ဗီဒီယိုဖိုင် အရင်ဆုံး တင်သွင်းပေးပါ!');
+        return;
+      }
+
+      showLoader('Groq Whisper Large V3 ဖြင့် အသံမှ စာသားအပိုင်းများကို ရယူနေပါသည်...');
+
+      try {
+        const formData = new FormData();
+        formData.append('file', extractedAudio);
+        formData.append('model', 'whisper-large-v3');
+        formData.append('response_format', 'verbose_json');
+
+        let response;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+              method: 'POST',
+              headers: { 
+                'Authorization': `Bearer ${cleanGroqKey}`
+              },
+              body: formData
+            });
+            if (response.ok) break;
+          } catch (e) {
+            if (attempt === 2) throw e;
+          }
+          await new Promise(r => setTimeout(r, 2000));
+        }
+
+        if (!response || !response.ok) {
+          const errText = response ? await response.text() : "Connection failed";
+          throw new Error(`SRT ထုတ်ယူမှု မအောင်မြင်ပါ။ Response Error: ${errText || response.statusText}`);
+        }
+
+        const data = await response.json();
+        const finalSrt = convertVerboseJsonToSrt(data);
+        
+        srtOutputVal = finalSrt;
+        document.getElementById('srtOutput').value = finalSrt;
+
+        document.getElementById('srtFlowWrapper').classList.remove('hidden');
+        showSuccess('အချိန်ကိုက် SRT Subtitle ထုတ်လုပ်မှု အပြည့်အဝ အောင်မြင်ပြီးစီးပါပြီ။ 🎬');
+      } catch (err) {
+        showError(`SRT Generation Error: ${err.message}`);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // Quick flows
+    function handleSendTranscriptToTranslator() {
+      document.getElementById('translationInput').value = transcriptOutputVal;
+      switchTab('translate');
+      showSuccess('Transcript ကို ဘာသာပြန်စနစ်ထဲသို့ ကူးပြောင်းပေးလိုက်ပါပြီ။');
+    }
+
+    function handleSendTranslationToTTS() {
+      document.getElementById('ttsInput').value = translationOutputVal;
+      switchTab('tts');
+      showSuccess('ဘာသာပြန်စာသားကို TTS အသံထုတ်စနစ်ထဲသို့ ကူးပြောင်းပေးလိုက်ပါပြီ။');
+    }
+
+    // Standard Downloaders
+    function downloadTextFile(content, filename) {
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadTranslationFile() {
+      downloadTextFile(translationOutputVal, 'joker_myanmar_translation.txt');
+    }
+
+    function downloadTranscriptFile() {
+      downloadTextFile(transcriptOutputVal, 'joker_transcript.txt');
+    }
+
+    function downloadSrtFile() {
+      downloadTextFile(srtOutputVal, 'joker_subtitles.srt');
+    }
+
+    // Dynamic UI State Modifiers
+    function showLoader(msg) {
+      document.getElementById('masterLoaderMsg').innerText = msg;
+      document.getElementById('masterLoader').classList.remove('hidden');
+    }
+
+    function hideLoader() {
+      document.getElementById('masterLoader').classList.add('hidden');
+    }
+
+    function showError(msg) {
+      document.getElementById('errorText').innerText = msg;
+      document.getElementById('errorBanner').classList.remove('hidden');
+    }
+
+    function hideError() {
+      document.getElementById('errorBanner').classList.add('hidden');
+    }
+
+    function showSuccess(msg) {
+      document.getElementById('successText').innerText = msg;
+      document.getElementById('successBanner').classList.remove('hidden');
+    }
+
+    function hideSuccess() {
+      document.getElementById('successBanner').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
+
+```
