@@ -1,7 +1,7 @@
-import { EdgeTTS } from 'node-edge-tts';
+import { EdgeTTS } from 'edge-tts-universal';
 
 export default async function handler(req, res) {
-  // CORS Security Headers configuration
+  // CORS Configuration
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Parse URL Query parameters
+  // Get URL queries
   const { voice = 'my-MM-NilarNeural', text, rate = '+0%', pitch = '+0Hz' } = req.query;
 
   if (!text) {
@@ -23,21 +23,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const tts = new EdgeTTS();
-    
-    // Microsoft Edge TTS Server ဆီမှ အသံလှမ်းထုတ်ယူခြင်း
-    const buffer = await tts.ttsPromise({
-      text: text,
-      voice: voice,
+    // edge-tts-universal သုံးပြီး Engine Initialize လုပ်ခြင်း
+    const tts = new EdgeTTS(text, voice, {
       rate: rate,
-      pitch: pitch
+      pitch: pitch,
+      volume: '+0%'
     });
 
-    // ရရှိလာသည့် Audio Stream ကို MP3 Buffer အဖြစ် ပြန်လည်ပေးပို့ခြင်း
+    // Synthesize to ArrayBuffer directly
+    const buffer = await tts.synthesize();
+
+    // Send MP3 buffer to client
     res.setHeader('Content-Type', 'audio/mpeg');
-    return res.send(buffer);
+    return res.send(Buffer.from(buffer));
   } catch (error) {
-    console.error('Edge TTS Service Error:', error);
+    console.error('TTS API Server Error:', error);
     return res.status(500).json({ 
       error: 'အသံဖိုင်ထုတ်လုပ်ခြင်း မအောင်မြင်ပါ', 
       details: error.message 
