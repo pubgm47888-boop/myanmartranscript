@@ -1,9 +1,0 @@
-{
-  "name": "joker-media-engine",
-  "version": "1.3.0",
-  "description": "Premium Myanmar Cloud Audio & Transcribe Engine",
-  "main": "api/tts.js",
-  "dependencies": {
-    "ws": "^8.16.0"
-  }
-}
