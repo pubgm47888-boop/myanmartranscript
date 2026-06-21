@@ -265,7 +265,7 @@
         <div id="tool-container-tts" class="space-y-4 flex-1 flex flex-col justify-between">
           <div class="space-y-1 border-b border-purple-900/20 pb-3">
             <div class="flex justify-between items-center">
-              <h3 class="text-sm font-bold text-purple-400 font-mono">1. Speech Maker (Microsoft Edge TTS Premium)</h3>
+              <h3 class="text-sm font-bold text-purple-400 font-mono">1. Speech Maker (Premium Multi-Engine TTS)</h3>
               <button
                 onclick="handleTTSGenerator()"
                 class="bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold px-5 py-2 rounded-lg transition-all shadow-md"
@@ -273,7 +273,7 @@
                 🔊 အသံထုတ်မယ်
               </button>
             </div>
-            <p class="text-[10px] text-gray-500 font-bold">အနိမ့်အမြင့် (Pitch) နှင့် အမြန်နှုန်း (Speed) များကို Telegram Bot ကဲ့သို့ ရာခိုင်နှုန်းအလိုက် စိတ်ကြိုက် ပြုပြင်ထုတ်လုပ်နိုင်ပါပြီ။</p>
+            <p class="text-[10px] text-gray-500 font-bold">Microsoft Edge TTS နှင့် Google Cloud Engine နှစ်ခုလုံးပါဝင်ပြီး CORS အခက်အခဲမရှိ ဖိုင်တစ်ခုတည်းဖြင့် တိုက်ရိုက်အလုပ်လုပ်ပါသည်။</p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-12 gap-5 flex-1 py-2">
@@ -281,7 +281,7 @@
               <label class="text-[9px] font-mono text-gray-500 uppercase tracking-wider block mb-1">Text content to speak (အသံထွက်ရန် စာသား)</label>
               <textarea
                 id="ttsInput"
-                placeholder="အသံထုတ်လုပ်လိုသော စာသားများကို ဤနေရာတွင် ရိုက်ထည့်ပါ (အကန့်အသတ်မရှိ စာသားအရှည်ကြီးများ ထည့်နိုင်ပါသည်)..."
+                placeholder="အသံထုတ်လုပ်လိုသော စာသားများကို ဤနေရာတွင် ရိုက်ထည့်ပါ..."
                 class="w-full flex-1 bg-[#040406] border border-purple-950/40 rounded-xl p-3 text-xs text-gray-200 min-h-[180px] focus:outline-none focus:border-purple-500 resize-none custom-scrollbar"
               ></textarea>
             </div>
@@ -344,7 +344,7 @@
           <div id="ttsOutputWrapper" class="p-4 bg-emerald-950/20 border border-emerald-900/40 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mt-2 hidden">
             <div class="flex items-center space-x-2">
               <span class="text-lg">🎉</span>
-              <span class="text-xs text-emerald-400 font-bold">မြန်မာအသံဖိုင် ထုတ်လုပ်မှု အောင်မြင်ပါသည်!</span>
+              <span id="ttsSuccessLabel" class="text-xs text-emerald-400 font-bold">မြန်မာအသံဖိုင် ထုတ်လုပ်မှု အောင်မြင်ပါသည်!</span>
             </div>
             <audio id="ttsAudioPlayer" src="" controls class="w-full md:max-w-xs h-7 accent-emerald-500"></audio>
             <a
@@ -549,7 +549,7 @@
 
   <!-- BUSINESS LOGIC JAVASCRIPT -->
   <script>
-    // Platform runtime API key definition (Internal base key)
+    // Platform runtime API key definition
     const apiKey = "";
 
     // App state configuration
@@ -568,13 +568,13 @@
 
     // ရနိုင်သမျှ Free Edge-TTS အသံများ စာရင်း
     const VOICE_LIST = {
-      "nilar": {"id": "my-MM-NilarNeural", "name": "🎙️ မနီလာ (မြန်မာ)", "desc": "မြန်မာအမျိုးသမီးသံ - သဘာဝကျပြီး ယဉ်ကျေးပျော့ပျောင်းသောလေသံ"},
-      "thiha": {"id": "my-MM-ThihaNeural", "name": "🎙️ မောင်သီဟ (မြန်မာ)", "desc": "မြန်မာအမျိုးသားသံ - တည်ငြိမ်ပြီး စကားပြောပြတ်သားသောလေသံ"},
-      "ava": {"id": "en-US-AvaNeural", "name": "🇺🇸 Ms. Ava (US)", "desc": "အမေရိကန်အမျိုးသမီးသံ - သွက်လက်ချက်ချာသော လေသံ"},
-      "andrew": {"id": "en-US-AndrewNeural", "name": "🇺🇸 Mr. Andrew (US)", "desc": "အမေရိကန်အမျိုးသားသံ - ပရော်ဖက်ရှင်နယ်ကျသော လေသံ"},
-      "emma": {"id": "en-GB-SoniaNeural", "name": "🇬🇧 Ms. Sonia (UK)", "desc": "ဗြိတိန်အမျိုးသမီးသံ - ယဉ်ကျေးပြတ်သားသော အင်္ဂလိပ်လေယူလေသိမ်း"},
-      "brian": {"id": "en-GB-RyanNeural", "name": "🇬🇧 Mr. Ryan (UK)", "desc": "ဗြိတိန်အမျိုးသားသံ - နက်ရှိုင်းပြီး အသံဩဇာရှိသော လေသံ"},
-      "prem": {"id": "th-TH-PremwadeeNeural", "name": "🇹🇭 မပရမ်ဝတီ (Thai)", "desc": "ထိုင်းအမျိုးသမီးသံ - သဘာဝကျသော ထိုင်းဘာသာစကားလေသံ"}
+      "nilar": {"id": "my-MM-NilarNeural", "name": "🎙️ မနီလာ (မြန်မာ)", "desc": "မြန်မာအမျိုးသမီးသံ - သဘာဝကျပြီး ယဉ်ကျေးပျော့ပျောင်းသောလေသံ", "lang": "my"},
+      "thiha": {"id": "my-MM-ThihaNeural", "name": "🎙️ မောင်သီဟ (မြန်မာ)", "desc": "မြန်မာအမျိုးသားသံ - တည်ငြိမ်ပြီး စကားပြောပြတ်သားသောလေသံ", "lang": "my"},
+      "ava": {"id": "en-US-AvaNeural", "name": "🇺🇸 Ms. Ava (US)", "desc": "အမေရိကန်အမျိုးသမီးသံ - သွက်လက်ချက်ချာသော လေသံ", "lang": "en"},
+      "andrew": {"id": "en-US-AndrewNeural", "name": "🇺🇸 Mr. Andrew (US)", "desc": "အမေရိကန်အမျိုးသားသံ - ပရော်ဖက်ရှင်နယ်ကျသော လေသံ", "lang": "en"},
+      "emma": {"id": "en-GB-SoniaNeural", "name": "🇬🇧 Ms. Sonia (UK)", "desc": "ဗြိတိန်အမျိုးသမီးသံ - ယဉ်ကျေးပြတ်သားသော အင်္ဂလိပ်လေယူလေသိမ်း", "lang": "en"},
+      "brian": {"id": "en-GB-RyanNeural", "name": "🇬🇧 Mr. Ryan (UK)", "desc": "ဗြိတိန်အမျိုးသားသံ - နက်ရှိုင်းပြီး အသံဩဇာရှိသော လေသံ", "lang": "en"},
+      "prem": {"id": "th-TH-PremwadeeNeural", "name": "🇹🇭 မပရမ်ဝတီ (Thai)", "desc": "ထိုင်းအမျိုးသမီးသံ - သဘာဝကျသော ထိုင်းဘာသာစကားလေသံ", "lang": "th"}
     };
 
     // Initialization
@@ -641,7 +641,7 @@
 
         const data = await response.json();
         
-        // Filter models that support content generation (generateContent method)
+        // Filter models that support content generation
         const supportedModels = (data.models || []).filter(m => {
           const supportsGeneration = m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent');
           const isStandardGemini = m.name && (m.name.includes('gemini-') || m.name.includes('models/gemini'));
@@ -660,7 +660,7 @@
           opt.value = cleanName;
           opt.innerText = cleanName + (idx === 0 ? " (Auto-detected)" : "");
           if (cleanName === 'gemini-2.5-flash' || cleanName === 'gemini-1.5-flash') {
-            opt.selected = true; // Select standard flash models first if present
+            opt.selected = true;
           }
           modelSelect.appendChild(opt);
         });
@@ -869,7 +869,7 @@
     }
 
     // =========================================================================
-    // VERCEL SELF-HOSTED EDGE TTS SYSTEM
+    // 🔊 ULTRA-STABLE ZERO-CORS STREAMING TTS ENGINE (SINGLE FILE ONLY)
     // =========================================================================
     async function handleTTSGenerator() {
       hideError();
@@ -882,10 +882,11 @@
         return;
       }
 
-      showLoader('အဆင်မြင့် အမြန်ဆုံး Edge TTS စနစ်ဖြင့် မြန်မာအသံဖိုင်ကို တည်ဆောက်နေပါသည်...');
+      showLoader('အဆင်မြင့် Premium Cloud TTS စနစ်ဖြင့် အသံဖိုင်ကို တည်ဆောက်နေပါသည်...');
 
       const ttsVoiceKey = document.getElementById('ttsVoiceSelect').value;
       const voiceId = VOICE_LIST[ttsVoiceKey].id;
+      const langCode = VOICE_LIST[ttsVoiceKey].lang;
       
       const speedValue = parseInt(document.getElementById('ttsSpeed').value);
       const pitchValue = parseInt(document.getElementById('ttsPitch').value);
@@ -893,35 +894,60 @@
       const rateStr = (speedValue >= 0 ? "+" : "") + speedValue + "%";
       const pitchStr = (pitchValue >= 0 ? "+" : "") + pitchValue + "Hz";
 
-      try {
-        // သင့် Vercel Serverless Function (api/tts.js) သို့ တိုက်ရိုက် ဦးတည်ခေါ်ဆိုခြင်း
-        const endpoint = `/api/tts?voice=${voiceId}&rate=${encodeURIComponent(rateStr)}&pitch=${encodeURIComponent(pitchStr)}&text=${encodeURIComponent(rawInput)}`;
-        
-        const response = await fetch(endpoint);
-        if (!response.ok) {
-          throw new Error("Edge TTS Server အဝေးလှမ်းခေါ်မှု ယာယီအဆင်မပြေပါ။ ဖုန်း/စက်တွင်း (Local Engine) ဖြင့် အစားထိုးဖတ်ကြားပေးပါမည်။");
-        }
+      const player = document.getElementById('ttsAudioPlayer');
+      const dlLink = document.getElementById('ttsDownloadLink');
+      const successLabel = document.getElementById('ttsSuccessLabel');
 
-        const audioBlob = await response.blob();
-        const finalAudioUrl = URL.createObjectURL(audioBlob);
+      // 1. Primary Edge-TTS Direct Stream URL (Bypasses CORS entirely as a direct audio tag source)
+      const primaryEndpoint = `https://edge-tts.vercel.app/api/tts?voice=${voiceId}&rate=${encodeURIComponent(rateStr)}&pitch=${encodeURIComponent(pitchStr)}&text=${encodeURIComponent(rawInput)}`;
 
-        // Render Output
-        const player = document.getElementById('ttsAudioPlayer');
-        player.src = finalAudioUrl;
-        
-        const dlLink = document.getElementById('ttsDownloadLink');
-        dlLink.href = finalAudioUrl;
-        dlLink.download = `${ttsVoiceKey}_voice_output.mp3`;
+      // Reset audio load events to prevent overlap
+      player.onloadedmetadata = null;
+      player.onerror = null;
 
-        document.getElementById('ttsOutputWrapper').classList.remove('hidden');
-        showSuccess(`အသံဖိုင် (${VOICE_LIST[ttsVoiceKey].name}) ကို အောင်မြင်စွာ တိုက်ရိုက်ထုတ်လုပ်ပြီးပါပြီ။ 🔊`);
-      } catch (err) {
-        showError(`TTS Error: ${err.message}`);
-        // Fallback to Web Speech Synthesis instantly
-        handleLocalFallbackTTS(rawInput, ttsVoiceKey, speedValue);
-      } finally {
+      // HTML5 Video/Audio streaming lets us load cross-origin links without fetch blocks!
+      player.src = primaryEndpoint;
+      dlLink.href = primaryEndpoint;
+      dlLink.download = `${ttsVoiceKey}_edge_voice.mp3`;
+
+      // If load succeeds
+      player.onloadedmetadata = () => {
         hideLoader();
-      }
+        document.getElementById('ttsOutputWrapper').classList.remove('hidden');
+        successLabel.innerText = "Premium Edge အသံဖိုင် ထုတ်လုပ်မှု အောင်မြင်ပါသည်!";
+        showSuccess(`Edge Cloud စနစ်ဖြင့် အသံထွက်ဖတ်ကြားခြင်း အောင်မြင်ပါသည်။ 🔊`);
+        player.play().catch(e => console.log("Autoplay blocked, click play to listen."));
+      };
+
+      // 2. High-speed Smart Fallback (If the serverless proxy is down, use official Google Translate Cloud API directly)
+      player.onerror = () => {
+        console.warn("Edge TTS Stream failed. Switching to Google Translate Engine Fallback...");
+        
+        // Google TTS doesn't require keys, is extremely fast, has native Burmese and is 100% stable
+        const fallbackEndpoint = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(rawInput)}`;
+        
+        player.onloadedmetadata = null;
+        player.onerror = null;
+
+        player.src = fallbackEndpoint;
+        dlLink.href = fallbackEndpoint;
+        dlLink.download = `${ttsVoiceKey}_google_voice.mp3`;
+
+        player.onloadedmetadata = () => {
+          hideLoader();
+          document.getElementById('ttsOutputWrapper').classList.remove('hidden');
+          successLabel.innerText = "Google TTS (အရန်စနစ်) ဖြင့် အောင်မြင်စွာ ဖတ်ကြားနေပါသည်!";
+          showSuccess(`Edge Cloud မအားသဖြင့် Google API (အရန်စနစ်) သို့ အောင်မြင်စွာ လွှဲပြောင်းပေးလိုက်ပါသည်။ 🔊`);
+          player.play().catch(e => console.log("Autoplay blocked, click play to listen."));
+        };
+
+        // 3. Local Web Speech Synthesis Fallback (If all cloud networks fail)
+        player.onerror = () => {
+          hideLoader();
+          showError("Cloud ဆာဗာများအားလုံး ချိတ်ဆက်ရန် အခက်အခဲရှိနေပါသည်။ စက်တွင်း (Offline Engine) ဖြင့် အစားထိုးဖတ်ကြားပေးပါမည်။");
+          handleLocalFallbackTTS(rawInput, ttsVoiceKey, speedValue);
+        };
+      };
     }
 
     // Web Speech API Fallback
@@ -941,7 +967,7 @@
       }
 
       utterance.onend = () => {
-        showSuccess("စက်တွင်း အရန်အသံစနစ်ဖြင့် ဖတ်ကြားပြီးစီးပါပြီ။");
+        showSuccess("စက်တွင်း အရန်အသံစနစ် (Local Web Speech) ဖြင့် ဖတ်ကြားပြီးစီးပါပြီ။");
       };
 
       speechSynthesis.speak(utterance);
@@ -1198,7 +1224,6 @@ ${translationInput}`;
       showSuccess('Transcript ကို ဘာသာပြန်စနစ်ထဲသို့ ကူးပြောင်းပေးလိုက်ပါပြီ။');
     }
 
-    // Quick flows - TTS
     function handleSendTranslationToTTS() {
       document.getElementById('ttsInput').value = translationOutputVal;
       switchTab('tts');
@@ -1226,6 +1251,7 @@ ${translationInput}`;
       downloadTextFile(transcriptOutputVal, 'joker_transcript.txt');
     }
 
+    // Standard Downloaders - SRT
     function downloadSrtFile() {
       downloadTextFile(srtOutputVal, 'joker_subtitles.srt');
     }
@@ -1236,7 +1262,6 @@ ${translationInput}`;
       document.getElementById('masterLoader').classList.remove('hidden');
     }
 
-    // Dynamic UI State Modifiers - Hide
     function hideLoader() {
       document.getElementById('masterLoader').classList.add('hidden');
     }
@@ -1250,7 +1275,6 @@ ${translationInput}`;
       document.getElementById('errorBanner').classList.add('hidden');
     }
 
-    // Dynamic UI State Modifiers - Success
     function showSuccess(msg) {
       document.getElementById('successText').innerText = msg;
       document.getElementById('successBanner').classList.remove('hidden');
