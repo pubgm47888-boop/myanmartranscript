@@ -1198,6 +1198,7 @@ ${translationInput}`;
       showSuccess('Transcript ကို ဘာသာပြန်စနစ်ထဲသို့ ကူးပြောင်းပေးလိုက်ပါပြီ။');
     }
 
+    // Quick flows - TTS
     function handleSendTranslationToTTS() {
       document.getElementById('ttsInput').value = translationOutputVal;
       switchTab('tts');
@@ -1235,6 +1236,7 @@ ${translationInput}`;
       document.getElementById('masterLoader').classList.remove('hidden');
     }
 
+    // Dynamic UI State Modifiers - Hide
     function hideLoader() {
       document.getElementById('masterLoader').classList.add('hidden');
     }
