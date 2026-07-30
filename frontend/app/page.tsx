@@ -44,6 +44,10 @@ export default function Home() {
   const [subLang, setSubLang] = useState("my");
   const [subColor, setSubColor] = useState("yellow");
   const [blurMask, setBlurMask] = useState(false);
+  const [blurYPercent, setBlurYPercent] = useState(82);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+  const previewBoxRef = useRef<HTMLDivElement | null>(null);
+  const draggingRef = useRef(false);
 
   const [jobId, setJobId] = useState<string | null>(null);
   const [job, setJob] = useState<JobStatus | null>(null);
@@ -96,6 +100,7 @@ export default function Home() {
     fd.append("sub_color", subColor);
     fd.append("font_size", "40");
     fd.append("blur_mask", String(blurMask));
+    fd.append("blur_y_percent", String(blurYPercent));
 
     setSubmitting(true);
     try {
@@ -112,6 +117,28 @@ export default function Home() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function updateBlurFromPointer(clientY: number) {
+    const box = previewBoxRef.current;
+    if (!box) return;
+    const rect = box.getBoundingClientRect();
+    const ratio = (clientY - rect.top) / rect.height;
+    const clamped = Math.min(0.94, Math.max(0.04, ratio));
+    setBlurYPercent(Math.round(clamped * 100));
+  }
+
+  function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    draggingRef.current = true;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    updateBlurFromPointer(e.clientY);
+  }
+  function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!draggingRef.current) return;
+    updateBlurFromPointer(e.clientY);
+  }
+  function handlePointerUp() {
+    draggingRef.current = false;
   }
 
   function reset() {
@@ -142,7 +169,14 @@ export default function Home() {
               <input
                 type="file"
                 accept="video/*"
-                onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                onChange={(e) => {
+                  const f = e.target.files?.[0] || null;
+                  setVideoFile(f);
+                  setVideoPreviewUrl((old) => {
+                    if (old) URL.revokeObjectURL(old);
+                    return f ? URL.createObjectURL(f) : null;
+                  });
+                }}
                 className="w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-500 file:text-black file:font-medium"
               />
             </div>
@@ -236,6 +270,38 @@ export default function Home() {
                 Blur Mask (စာတန်းဟောင်းဖျောက်ရန်)
               </label>
             </div>
+
+            {blurMask && videoPreviewUrl && (
+              <div>
+                <p className="text-xs text-gray-400 mb-2">
+                  Blur တန်းကို လက်ဖျားနဲ့ ဆွဲပြီး နေရာချပါ ({blurYPercent}%)
+                </p>
+                <div
+                  ref={previewBoxRef}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
+                  className="relative w-full max-w-[220px] mx-auto rounded-xl overflow-hidden bg-black touch-none select-none"
+                  style={{ aspectRatio: platform === "yt" ? "16/9" : platform === "fb" ? "1/1" : "9/16" }}
+                >
+                  <video
+                    src={videoPreviewUrl}
+                    className="w-full h-full object-cover pointer-events-none"
+                    muted
+                    playsInline
+                  />
+                  <div
+                    className="absolute left-0 right-0 bg-amber-500/40 border-y-2 border-amber-400 cursor-ns-resize"
+                    style={{ top: `${blurYPercent}%`, height: "12%", transform: "translateY(-50%)" }}
+                  >
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-10 h-1.5 rounded-full bg-amber-300" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {formError && <p className="text-sm text-red-400">{formError}</p>}
 
