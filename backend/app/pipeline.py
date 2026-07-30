@@ -590,6 +590,7 @@ async def run_recap_pipeline(
     sub_color: str = "yellow",
     font_size: int = 40,
     blur_mask: bool = False,
+    blur_y_percent: int = 82,
     on_progress=None,
 ):
     async def report(step, message, percent):
@@ -725,7 +726,7 @@ async def run_recap_pipeline(
 
     blur_str, blur_label = ("", None)
     if blur_mask:
-        blur_str, blur_label = get_blur_mask_filter("[0:v]", 82)
+        blur_str, blur_label = get_blur_mask_filter("[0:v]", blur_y_percent)
 
     subs_concat_path = None
     if subtitles_enabled and sub_segments:
