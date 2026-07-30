@@ -69,6 +69,7 @@ async def create_job(
     sub_color: str = Form("yellow"),
     font_size: int = Form(40),
     blur_mask: bool = Form(False),
+    blur_y_percent: int = Form(82),
 ):
     job_id = str(uuid.uuid4())
     input_path = os.path.join(UPLOAD_DIR, f"{job_id}_{video.filename}")
@@ -91,14 +92,15 @@ async def create_job(
     asyncio.create_task(_run_job(
         job_id, input_path, output_path,
         gemini_key, groq_key, voice, speed, platform, resolution,
-        subtitles_enabled, sub_lang, sub_color, font_size, blur_mask,
+        subtitles_enabled, sub_lang, sub_color, font_size, blur_mask, blur_y_percent,
     ))
 
     return {"job_id": job_id}
 
 
 async def _run_job(job_id, input_path, output_path, gemini_key, groq_key, voice, speed,
-                    platform, resolution, subtitles_enabled, sub_lang, sub_color, font_size, blur_mask):
+                    platform, resolution, subtitles_enabled, sub_lang, sub_color, font_size,
+                    blur_mask, blur_y_percent=82):
     async def on_progress(step, message, percent):
         JOBS[job_id].update(status="processing", step=step, message=message, percent=percent)
 
@@ -117,6 +119,7 @@ async def _run_job(job_id, input_path, output_path, gemini_key, groq_key, voice,
             sub_color=sub_color,
             font_size=font_size,
             blur_mask=blur_mask,
+            blur_y_percent=blur_y_percent,
             on_progress=on_progress,
         )
         JOBS[job_id].update(status="finished", step="done", message="ပြီးမြောက်ပါပြီ။", percent=100, result=result)
