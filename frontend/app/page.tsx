@@ -42,12 +42,12 @@ export default function Home() {
   const [resolution, setResolution] = useState("720");
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(true);
   const [subLang, setSubLang] = useState("my");
-  const [subColor, setSubColor] = useState("yellow");
-  const [blurMask, setBlurMask] = useState(false);
-  const [blurYPercent, setBlurYPercent] = useState(82);
-  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
-  const previewBoxRef = useRef<HTMLDivElement | null>(null);
-  const draggingRef = useRef(false);
+  const [subColor, setSubColor] = useState("#ffffff");
+  const [blurMask, setBlurMask] = useState(true);
+  const [maskColor, setMaskColor] = useState("#000000");
+  const [maskYPercent, setMaskYPercent] = useState(82);
+  const [maskHeightPercent, setMaskHeightPercent] = useState(15);
+  const [maskOpacityPercent, setMaskOpacityPercent] = useState(90);
 
   const [jobId, setJobId] = useState<string | null>(null);
   const [job, setJob] = useState<JobStatus | null>(null);
@@ -100,7 +100,10 @@ export default function Home() {
     fd.append("sub_color", subColor);
     fd.append("font_size", "40");
     fd.append("blur_mask", String(blurMask));
-    fd.append("blur_y_percent", String(blurYPercent));
+    fd.append("mask_color", maskColor);
+    fd.append("mask_y_percent", String(maskYPercent));
+    fd.append("mask_height_percent", String(maskHeightPercent));
+    fd.append("mask_opacity_percent", String(maskOpacityPercent));
 
     setSubmitting(true);
     try {
@@ -117,28 +120,6 @@ export default function Home() {
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function updateBlurFromPointer(clientY: number) {
-    const box = previewBoxRef.current;
-    if (!box) return;
-    const rect = box.getBoundingClientRect();
-    const ratio = (clientY - rect.top) / rect.height;
-    const clamped = Math.min(0.94, Math.max(0.04, ratio));
-    setBlurYPercent(Math.round(clamped * 100));
-  }
-
-  function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
-    draggingRef.current = true;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    updateBlurFromPointer(e.clientY);
-  }
-  function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
-    if (!draggingRef.current) return;
-    updateBlurFromPointer(e.clientY);
-  }
-  function handlePointerUp() {
-    draggingRef.current = false;
   }
 
   function reset() {
@@ -169,14 +150,7 @@ export default function Home() {
               <input
                 type="file"
                 accept="video/*"
-                onChange={(e) => {
-                  const f = e.target.files?.[0] || null;
-                  setVideoFile(f);
-                  setVideoPreviewUrl((old) => {
-                    if (old) URL.revokeObjectURL(old);
-                    return f ? URL.createObjectURL(f) : null;
-                  });
-                }}
+                onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
                 className="w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-500 file:text-black file:font-medium"
               />
             </div>
@@ -257,51 +231,81 @@ export default function Home() {
                     <option value="id">Bahasa Indonesia</option>
                   </select>
                   <select value={subColor} onChange={(e) => setSubColor(e.target.value)} className="bg-gray-950 border border-gray-800 rounded-lg p-2 text-sm text-white">
-                    <option value="yellow">အဝါရောင်</option>
-                    <option value="white">အဖြူရောင်</option>
-                    <option value="cyan">Cyan</option>
-                    <option value="lime">Lime</option>
-                    <option value="pink">ပန်းရောင်</option>
+                    <option value="#ffffff">White (အဖြူစစ်စစ်)</option>
+                    <option value="#f59e0b">Amber Gold (ရွှေဝါရောင်)</option>
+                    <option value="#10b981">Emerald Green (ကျောက်စိမ်းရောင်)</option>
+                    <option value="#06b6d4">Cyan Sparkle (မိုးပြာရောင်)</option>
+                    <option value="#ec4899">Sweet Rose Pink (ပန်းရောင်စိုစို)</option>
                   </select>
                 </>
               )}
-              <label className="flex items-center gap-2 text-sm text-gray-300">
-                <input type="checkbox" checked={blurMask} onChange={(e) => setBlurMask(e.target.checked)} />
-                Blur Mask (စာတန်းဟောင်းဖျောက်ရန်)
-              </label>
             </div>
 
-            {blurMask && videoPreviewUrl && (
-              <div>
-                <p className="text-xs text-gray-400 mb-2">
-                  Blur တန်းကို လက်ဖျားနဲ့ ဆွဲပြီး နေရာချပါ ({blurYPercent}%)
-                </p>
-                <div
-                  ref={previewBoxRef}
-                  onPointerDown={handlePointerDown}
-                  onPointerMove={handlePointerMove}
-                  onPointerUp={handlePointerUp}
-                  onPointerCancel={handlePointerUp}
-                  className="relative w-full max-w-[220px] mx-auto rounded-xl overflow-hidden bg-black touch-none select-none"
-                  style={{ aspectRatio: platform === "yt" ? "16/9" : platform === "fb" ? "1/1" : "9/16" }}
-                >
-                  <video
-                    src={videoPreviewUrl}
-                    className="w-full h-full object-cover pointer-events-none"
-                    muted
-                    playsInline
-                  />
-                  <div
-                    className="absolute left-0 right-0 bg-amber-500/40 border-y-2 border-amber-400 cursor-ns-resize"
-                    style={{ top: `${blurYPercent}%`, height: "12%", transform: "translateY(-50%)" }}
-                  >
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="w-10 h-1.5 rounded-full bg-amber-300" />
+            <div className="border-t border-gray-800 pt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                  Original Text Blur/Mask (စာတန်းဟောင်းဖျောက်ရန်)
+                </label>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" checked={blurMask} onChange={(e) => setBlurMask(e.target.checked)} className="sr-only peer" />
+                  <div className="w-9 h-5 bg-gray-800 rounded-full peer peer-checked:bg-amber-500 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                </label>
+              </div>
+
+              {blurMask && (
+                <div className="space-y-3 bg-gray-950 p-3.5 rounded-xl border border-gray-800">
+                  <div>
+                    <label className="text-[10px] text-gray-400 uppercase tracking-wider block mb-1">
+                      Blur Bar Background Color (ဖုံးကွယ်မည့်အရောင်)
+                    </label>
+                    <select
+                      value={maskColor}
+                      onChange={(e) => setMaskColor(e.target.value)}
+                      className="w-full bg-gray-900 border border-gray-800 p-2 rounded-lg text-xs text-white outline-none focus:border-amber-500"
+                    >
+                      <option value="#000000">Black (အနက်ရောင်)</option>
+                      <option value="#1e293b">Dark Slate Gray (မီးခိုးရင့်ရောင်)</option>
+                      <option value="#0f172a">Midnight Deep Blue (နက်ပြာရောင်)</option>
+                      <option value="#450a0a">Dark Wine Red (ဝိုင်နီရင့်ရောင်)</option>
+                      <option value="#064e3b">Deep Forest Green (တောအုပ်စိမ်းရောင်)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs text-gray-400 mb-1">
+                      <span>Vertical Position (Y)</span>
+                      <span>{maskYPercent}%</span>
                     </div>
+                    <input
+                      type="range" min={50} max={100} value={maskYPercent}
+                      onChange={(e) => setMaskYPercent(Number(e.target.value))}
+                      className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs text-gray-400 mb-1">
+                      <span>Height Control (အကျယ်)</span>
+                      <span>{maskHeightPercent}%</span>
+                    </div>
+                    <input
+                      type="range" min={5} max={30} value={maskHeightPercent}
+                      onChange={(e) => setMaskHeightPercent(Number(e.target.value))}
+                      className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs text-gray-400 mb-1">
+                      <span>Opacity (မှိန်အား/လင်းအား)</span>
+                      <span>{maskOpacityPercent}%</span>
+                    </div>
+                    <input
+                      type="range" min={0} max={100} value={maskOpacityPercent}
+                      onChange={(e) => setMaskOpacityPercent(Number(e.target.value))}
+                      className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                    />
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {formError && <p className="text-sm text-red-400">{formError}</p>}
 
