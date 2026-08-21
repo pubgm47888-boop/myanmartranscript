@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOKER Voice Clone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700;800&family=Bungee&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0b0b0d;
+    --black-2:#151318;
+    --card:#1b1720;
+    --red:#c81f3d;
+    --red-glow:#ff2f52;
+    --gold:#d4af37;
+    --gold-soft:#e8cc6a;
+    --ivory:#f2ede4;
+    --ivory-dim:rgba(242,237,228,.6);
+    --line:rgba(242,237,228,.1);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(200,31,61,.18), transparent 60%),
+      radial-gradient(700px 500px at 10% 10%, rgba(212,175,55,.08), transparent 55%),
+      var(--black);
+    color:var(--ivory);
+    font-family:'Noto Sans Myanmar', sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px;}
+
+  /* ---------- NAV ---------- */
+  nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0;}
+  .nav-brand{display:flex;align-items:center;gap:10px;}
+  .nav-domain{
+    font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ivory-dim);
+    border:1px solid var(--line);padding:6px 12px;border-radius:99px;
+  }
+
+  /* ---------- 3D JESTER LOGO ---------- */
+  .logo-scene{perspective:600px;width:46px;height:46px;flex:none;}
+  .logo-card{
+    width:100%;height:100%;position:relative;transform-style:preserve-3d;
+    animation:tumble 7s ease-in-out infinite;
+  }
+  @keyframes tumble{
+    0%,100%{transform:rotateY(0deg) rotateX(0deg);}
+    50%{transform:rotateY(180deg) rotateX(8deg);}
+  }
+  .logo-face{
+    position:absolute;inset:0;backface-visibility:hidden;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 20px rgba(0,0,0,.5);
+  }
+  .logo-face.front{background:linear-gradient(155deg, var(--red), #8e1329);}
+  .logo-face.back{background:linear-gradient(155deg, var(--gold-soft), #a3822a);transform:rotateY(180deg);}
+  .logo-face svg{width:26px;height:26px;}
+
+  h1.wordmark, .wordmark{
+    font-family:'Bungee', cursive; font-size:22px; letter-spacing:.03em;
+    color:var(--ivory); margin:0;
+  }
+  .wordmark .accent{color:var(--red-glow);}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:56px 0 40px;text-align:center;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;letter-spacing:.08em;color:var(--gold-soft);
+    border:1px solid rgba(212,175,55,.35);background:rgba(212,175,55,.07);
+    padding:7px 14px;border-radius:99px;margin-bottom:22px;
+  }
+  .hero h2{
+    font-family:'Bungee',cursive;font-size:clamp(32px,7vw,58px);line-height:1.15;
+    margin:0 0 18px;letter-spacing:.01em;
+  }
+  .hero h2 .flip{color:var(--red-glow);display:inline-block;}
+  .hero p.sub{
+    font-size:16px;color:var(--ivory-dim);max-width:480px;margin:0 auto 30px;line-height:1.75;
+  }
+
+  .trial-banner{
+    display:inline-flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:center;
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:16px 26px;position:relative;overflow:hidden;
+  }
+  .trial-banner::before{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(100deg, transparent 40%, rgba(212,175,55,.12) 50%, transparent 60%);
+    animation:shine 3.5s ease-in-out infinite;
+  }
+  @keyframes shine{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
+  .trial-banner .tag{
+    font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--gold-soft);font-size:14px;z-index:1;
+  }
+  .trial-banner .desc{font-size:14px;color:var(--ivory);z-index:1;}
+  .trial-banner .domain{
+    font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--red-glow);z-index:1;font-weight:700;
+  }
+
+  /* ---------- PRICING ---------- */
+  .pricing{padding:60px 0 20px;}
+  .pricing-head{text-align:center;margin-bottom:40px;}
+  .pricing-head .eyebrow{margin-bottom:14px;}
+  .pricing-head h3{font-family:'Bungee',cursive;font-size:clamp(24px,4vw,34px);margin:0;}
+
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fit, minmax(220px,1fr));gap:18px;
+    perspective:1400px;
+  }
+  .plan{
+    background:linear-gradient(165deg, var(--card), var(--black-2));
+    border:1px solid var(--line);border-radius:18px;padding:26px 22px;
+    position:relative;transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+    transform-style:preserve-3d;
+  }
+  .plan:hover{
+    transform:translateY(-8px) rotateX(4deg) rotateY(-3deg);
+    box-shadow:0 24px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(212,175,55,.25);
+    border-color:rgba(212,175,55,.4);
+  }
+  .plan.featured{
+    background:linear-gradient(165deg, #241119, var(--black-2));
+    border:1px solid rgba(200,31,61,.5);
+  }
+  .plan.featured::after{
+    content:"အရေးဆုံးရွေးချယ်မှု";
+    position:absolute;top:-11px;right:20px;
+    background:var(--red);color:var(--ivory);font-size:11px;font-family:'JetBrains Mono',monospace;
+    padding:4px 10px;border-radius:99px;letter-spacing:.03em;
+    box-shadow:0 4px 10px rgba(200,31,61,.4);
+  }
+  .plan .plan-name{
+    font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold-soft);
+    letter-spacing:.06em;margin-bottom:14px;
+  }
+  .plan .price{font-family:'Bungee',cursive;font-size:26px;color:var(--ivory);margin-bottom:2px;}
+  .plan .price .unit{font-family:'Noto Sans Myanmar';font-size:13px;color:var(--ivory-dim);font-weight:400;}
+  .plan .duration{font-size:13px;color:var(--ivory-dim);margin-bottom:18px;}
+  .plan .stat{
+    display:flex;justify-content:space-between;font-size:13.5px;padding:9px 0;
+    border-top:1px solid var(--line);
+  }
+  .plan .stat:last-of-type{border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .plan .stat .k{color:var(--ivory-dim);}
+  .plan .stat .v{font-family:'JetBrains Mono',monospace;color:var(--ivory);}
+  .plan .extend{
+    font-size:12.5px;color:var(--ivory-dim);line-height:1.6;min-height:34px;
+  }
+  .plan .extend b{color:var(--gold-soft);font-family:'JetBrains Mono',monospace;font-weight:500;}
+  .plan .cta{
+    display:block;text-align:center;margin-top:18px;padding:11px;border-radius:10px;
+    background:rgba(242,237,228,.06);border:1px solid var(--line);color:var(--ivory);
+    text-decoration:none;font-size:14px;transition:.2s;
+  }
+  .plan.featured .cta{background:linear-gradient(180deg, var(--red-glow), var(--red));border:none;color:#fff;font-weight:600;}
+  .plan .cta:hover{border-color:var(--gold);color:var(--gold-soft);}
+  .plan.featured .cta:hover{filter:brightness(1.1);color:#fff;}
+
+  /* ---------- ADD-ON ---------- */
+  .addon{
+    margin-top:30px;background:var(--card);border:1px dashed rgba(212,175,55,.35);
+    border-radius:16px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;
+    gap:16px;flex-wrap:wrap;
+  }
+  .addon .label{font-size:14px;color:var(--ivory);}
+  .addon .label .h{display:block;font-family:'JetBrains Mono',monospace;color:var(--gold-soft);font-size:12.5px;margin-bottom:4px;letter-spacing:.05em;}
+  .addon .note{font-size:12.5px;color:var(--ivory-dim);}
+
+  footer{text-align:center;padding:56px 0 40px;color:var(--ivory-dim);font-size:12.5px;line-height:1.8;}
+  footer .fw{font-family:'Bungee',cursive;color:var(--red-glow);font-size:15px;display:block;margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <a href="index.html" class="nav-brand" style="text-decoration:none;">
+      <div class="logo-scene">
+        <div class="logo-card">
+          <div class="logo-face front">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L15 9 L21 6 L18 13 L21 20 H3 L6 13 L3 6 L9 9 Z" fill="#f2ede4"/><circle cx="12" cy="21.5" r="1.4" fill="#d4af37"/><circle cx="6" cy="17" r="1" fill="#d4af37"/><circle cx="18" cy="17" r="1" fill="#d4af37"/></svg>
+          </div>
+          <div class="logo-face back">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 C13 3 13.5 5 12.5 6 C14 6 15 8 13.5 9 C15 9.5 15.5 11.5 13.5 12 L13.5 20 H10.5 L10.5 12 C8.5 11.5 9 9.5 10.5 9 C9 8 10 6 11.5 6 C10.5 5 11 3 12 3 Z" fill="#0b0b0d"/></svg>
+          </div>
+        </div>
+      </div>
+      <span class="wordmark">JOKER<span class="accent">.</span></span>
+    </a>
+    <div class="nav-domain">melvoiceclone.org</div>
+  </nav>
+
+  <section class="hero">
+    <div class="eyebrow">♠ MYANMAR AI VOICE CLONE</div>
+    <h2>သင့်အသံကို<br><span class="flip">ဂျိုကာ</span>က ကစားပါစေ</h2>
+    <p class="sub">Reference အသံ တစ်ခုတင်ပါ၊ စာသားရိုက်ပါ — မြန်မာအသံနဲ့ ချက်ချင်း clone ထုတ်ပေးပါမယ်။</p>
+
+    <div class="trial-banner">
+      <span class="tag">🎁 FREE TRIAL</span>
+      <span class="desc">နေ့စဉ်အစမ်းသုံး — တစ်နေ့တစ်ကြိမ် / 500 စာလုံး</span>
+      <span class="domain">melvoiceclone.org</span>
+    </div>
+    <div style="margin-top:24px;">
+      <a href="app.html" style="display:inline-block;font-family:'Bungee',cursive;font-size:15px;color:#fff;background:linear-gradient(180deg,var(--red-glow),var(--red));padding:14px 32px;border-radius:12px;text-decoration:none;box-shadow:0 10px 26px rgba(200,31,61,.35);">အခုစမ်းကြည့်ရန် →</a>
+    </div>
+  </section>
+
+  <section class="pricing">
+    <div class="pricing-head">
+      <div class="eyebrow">🂡 PLANS &amp; PRICING</div>
+      <h3>Plan ငါးမျိုး — လိုအပ်ချက်အလိုက် ရွေးပါ</h3>
+    </div>
+
+    <div class="grid">
+
+      <div class="plan">
+        <div class="plan-name">7A PLAN</div>
+        <div class="price">10,000<span class="unit"> ကျပ်</span></div>
+        <div class="duration">7 ရက်</div>
+        <div class="stat"><span class="k">စာလုံးရေ</span><span class="v">100,000</span></div>
+        <div class="stat"><span class="k">သက်တမ်း</span><span class="v">7 ရက်</span></div>
+        <div class="extend">ထပ်တိုးခွင့် <b>မရှိပါ</b></div>
+        <a class="cta" href="app.html">ရွေးမယ်</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">7B PLAN</div>
+        <div class="price">20,000<span class="unit"> ကျပ်</span></div>
+        <div class="duration">7 ရက်</div>
+        <div class="stat"><span class="k">စာလုံးရေ</span><span class="v">250,000</span></div>
+        <div class="stat"><span class="k">သက်တမ်း</span><span class="v">7 ရက်</span></div>
+        <div class="extend">ထပ်တိုးခွင့် <b>မရှိပါ</b></div>
+        <a class="cta" href="app.html">ရွေးမယ်</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">30A PLAN</div>
+        <div class="price">30,000<span class="unit"> ကျပ်</span></div>
+        <div class="duration">30 ရက်</div>
+        <div class="stat"><span class="k">စာလုံးရေ</span><span class="v">300,000</span></div>
+        <div class="stat"><span class="k">သက်တမ်း</span><span class="v">30 ရက်</span></div>
+        <div class="extend">ထပ်တိုးရရှိနိုင် <b>200,000</b> စာလုံးအထိ</div>
+        <a class="cta" href="app.html">ရွေးမယ်</a>
+      </div>
+
+      <div class="plan featured">
+        <div class="plan-name">30B PLAN</div>
+        <div class="price">50,000<span class="unit"> ကျပ်</span></div>
+        <div class="duration">30 ရက်</div>
+        <div class="stat"><span class="k">စာလုံးရေ</span><span class="v">1,000,000</span></div>
+        <div class="stat"><span class="k">သက်တမ်း</span><span class="v">30 ရက်</span></div>
+        <div class="extend">ထပ်တိုးရရှိနိုင် <b>500,000</b> စာလုံးအထိ</div>
+        <a class="cta" href="app.html">ရွေးမယ်</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">30C PLAN</div>
+        <div class="price">80,000<span class="unit"> ကျပ်</span></div>
+        <div class="duration">30 ရက်</div>
+        <div class="stat"><span class="k">စာလုံးရေ</span><span class="v">2,000,000</span></div>
+        <div class="stat"><span class="k">သက်တမ်း</span><span class="v">30 ရက်</span></div>
+        <div class="extend">ထပ်တိုးရရှိနိုင် <b>500,000</b> စာလုံးအထိ</div>
+        <a class="cta" href="app.html">ရွေးမယ်</a>
+      </div>
+
+    </div>
+
+    <div class="addon">
+      <div class="label">
+        <span class="h">➕ ADD-ON</span>
+        ထပ်တိုး 100,000 စာလုံး — <b style="color:var(--gold-soft)">5,000 ကျပ်</b>
+      </div>
+      <div class="note">30A / 30B / 30C Plan များအတွက်သာ ဝယ်ယူနိုင်ပါသည်</div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="fw">JOKER Voice Clone</span>
+    melvoiceclone.org · အသံရှင်ရဲ့ ခွင့်ပြုချက်ဖြင့်သာ အသုံးပြုပါ
+  </footer>
+</div>
+
+</body>
+</html>
