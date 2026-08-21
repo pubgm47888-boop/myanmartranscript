@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOKER Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b0b0d;--panel:#1b1720;--line:rgba(242,237,228,.1);--gold:#d4af37;--red:#c81f3d;--ivory:#f2ede4;--ivory-dim:rgba(242,237,228,.6);}
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ivory);font-family:'Noto Sans Myanmar',sans-serif;margin:0;padding:24px;}
+  .wrap{max-width:1000px;margin:0 auto;}
+  h1{font-size:20px;color:var(--gold);}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:20px;}
+  input,select{background:var(--bg);border:1px solid var(--line);color:var(--ivory);padding:9px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:13px;}
+  button{background:var(--gold);color:#241209;border:none;padding:9px 16px;border-radius:8px;cursor:pointer;font-family:'Noto Sans Myanmar';font-weight:600;font-size:13px;}
+  button.danger{background:var(--red);color:#fff;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);}
+  th{color:var(--ivory-dim);font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11.5px;}
+  td.code{font-family:'JetBrains Mono',monospace;color:var(--gold);}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .tag{padding:3px 8px;border-radius:99px;font-size:11px;}
+  .tag.active{background:rgba(76,128,120,.2);color:#8fc3ba;}
+  .tag.inactive{background:rgba(200,31,61,.2);color:#ff8a9a;}
+  #loginBox{max-width:320px;margin:60px auto;text-align:center;}
+  .tabs{display:flex;gap:8px;margin-bottom:16px;}
+  .tab-btn{background:var(--panel);border:1px solid var(--line);color:var(--ivory-dim);padding:9px 18px;border-radius:8px;cursor:pointer;font-family:'Noto Sans Myanmar';font-size:13px;}
+  .tab-btn.active{background:var(--gold);color:#241209;border-color:var(--gold);font-weight:600;}
+  .tag.vip{background:rgba(212,175,55,.2);color:var(--gold);}
+  .tag.free{background:rgba(242,237,228,.1);color:var(--ivory-dim);}
+  .avatar{width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="loginBox" class="panel">
+    <h1>JOKER Admin</h1>
+    <p style="color:var(--ivory-dim);font-size:13px;">Admin Password</p>
+    <div class="row" style="justify-content:center;">
+      <input type="password" id="passwordInput" placeholder="Password">
+      <button id="loginBtn">ဝင်မယ်</button>
+    </div>
+    <p id="loginError" style="color:#ff8a9a;font-size:12px;"></p>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+    <h1>JOKER Admin Dashboard</h1>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="licenses">🎟 License Codes</button>
+      <button class="tab-btn" data-tab="users">👤 Users (Free / VIP)</button>
+    </div>
+
+    <div id="tab-licenses">
+    <div class="panel">
+      <div class="row">
+        <select id="planSelect">
+          <option value="7A">7A — 100,000 char / 7 ရက် — 10,000 ကျပ်</option>
+          <option value="7B">7B — 250,000 char / 7 ရက် — 20,000 ကျပ်</option>
+          <option value="30A">30A — 300,000 char / 30 ရက် — 30,000 ကျပ်</option>
+          <option value="30B">30B — 1,000,000 char / 30 ရက် — 50,000 ကျပ်</option>
+          <option value="30C">30C — 2,000,000 char / 30 ရက် — 80,000 ကျပ်</option>
+        </select>
+        <input type="text" id="noteInput" placeholder="Note (ဥပမာ — Customer name/Telegram)">
+        <button id="createBtn">+ Code အသစ်ထုတ်မယ်</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <table>
+        <thead>
+          <tr><th>Code</th><th>Plan</th><th>Used / Limit</th><th>Expires</th><th>Owner Email</th><th>Note</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="licenseTable"></tbody>
+      </table>
+    </div>
+    </div>
+
+    <div id="tab-users" style="display:none;">
+      <div class="panel">
+        <p style="color:var(--ivory-dim);font-size:13px;margin:0 0 12px;">Google login ဝင်ထားတဲ့ user အားလုံး — VIP (Active plan ရှိသူ) / Free (Daily trial သုံးနေသူ)</p>
+        <table>
+          <thead>
+            <tr><th>User</th><th>Joined</th><th>Last login</th><th>Status</th><th>Plan/Trial</th><th>Remaining</th><th>Code</th></tr>
+          </thead>
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let ADMIN_PASSWORD = '';
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-licenses').style.display = btn.dataset.tab === 'licenses' ? 'block' : 'none';
+    document.getElementById('tab-users').style.display = btn.dataset.tab === 'users' ? 'block' : 'none';
+    if (btn.dataset.tab === 'users') loadUsers();
+  });
+});
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const pw = document.getElementById('passwordInput').value;
+  const res = await fetch('/api/admin/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pw }),
+  });
+  if (res.ok) {
+    ADMIN_PASSWORD = pw;
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadLicenses();
+  } else {
+    document.getElementById('loginError').textContent = 'Password မှားနေပါတယ်';
+  }
+});
+
+async function adminFetch(url, options = {}) {
+  return fetch(url, {
+    ...options,
+    headers: { ...(options.headers || {}), 'X-Admin-Password': ADMIN_PASSWORD, 'Content-Type': 'application/json' },
+  });
+}
+
+async function loadLicenses() {
+  const res = await adminFetch('/api/admin/licenses');
+  const licenses = await res.json();
+  const tbody = document.getElementById('licenseTable');
+  tbody.innerHTML = licenses.map(l => `
+    <tr>
+      <td class="code">${l.code}</td>
+      <td>${l.plan}</td>
+      <td>${l.chars_used.toLocaleString()} / ${l.char_limit.toLocaleString()}</td>
+      <td>${new Date(l.expires_at).toLocaleDateString('my-MM')}</td>
+      <td>${l.email || '<span style="color:var(--ivory-dim)">— မသုံးရသေးပါ —</span>'}</td>
+      <td>${l.note || ''}</td>
+      <td><span class="tag ${l.active ? 'active' : 'inactive'}">${l.active ? 'Active' : 'Off'}</span></td>
+      <td><button class="danger" onclick="toggleLicense('${l.code}')">${l.active ? 'Deactivate' : 'Activate'}</button></td>
+    </tr>
+  `).join('');
+}
+
+async function loadUsers() {
+  const tbody = document.getElementById('usersTable');
+  tbody.innerHTML = '<tr><td colspan="7">Loading...</td></tr>';
+  const res = await adminFetch('/api/admin/users');
+  const data = await res.json();
+  if (!res.ok) { tbody.innerHTML = `<tr><td colspan="7" style="color:#ff8a9a;">${data.error}</td></tr>`; return; }
+
+  tbody.innerHTML = data.map(u => `
+    <tr>
+      <td>${u.avatar_url ? `<img class="avatar" src="${u.avatar_url}">` : ''}${u.email}</td>
+      <td>${new Date(u.created_at).toLocaleDateString('my-MM')}</td>
+      <td>${u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('my-MM') : '—'}</td>
+      <td><span class="tag ${u.status === 'VIP' ? 'vip' : 'free'}">${u.status === 'VIP' ? '⭐ VIP' : 'Free'}</span></td>
+      <td>${u.status === 'VIP' ? u.plan : `Daily trial (${u.free_used_today}/500 today)`}</td>
+      <td>${u.remaining.toLocaleString()} စာလုံး</td>
+      <td class="code">${u.code || '—'}</td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('createBtn').addEventListener('click', async () => {
+  const plan = document.getElementById('planSelect').value;
+  const note = document.getElementById('noteInput').value;
+  const res = await adminFetch('/api/admin/licenses', { method: 'POST', body: JSON.stringify({ plan, note }) });
+  const data = await res.json();
+  if (res.ok) {
+    alert('Code ထုတ်ပြီးပါပြီ:\n' + data.code);
+    document.getElementById('noteInput').value = '';
+    loadLicenses();
+  } else {
+    alert('Error: ' + data.error);
+  }
+});
+
+async function toggleLicense(code) {
+  await adminFetch(`/api/admin/licenses/${code}/toggle`, { method: 'POST' });
+  loadLicenses();
+}
+</script>
+</body>
+</html>
