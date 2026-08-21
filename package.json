@@ -10,8 +10,6 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "@supabase/supabase-js": "^2.45.4",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2"
+    "better-sqlite3": "^11.3.0"
   }
 }
