@@ -1,16 +1,4 @@
-{
-  "name": "voice-clone-backend",
-  "version": "1.0.0",
-  "private": true,
-  "engines": {
-    "node": ">=18"
-  },
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
+"dependencies": {
   "express": "^4.19.2",
   "better-sqlite3": "^11.3.0"
-  }
 }
-  
