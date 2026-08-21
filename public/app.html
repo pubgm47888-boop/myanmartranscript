@@ -6,6 +6,7 @@
 <title>အသံပုံ — Voice Clone</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#1c1012; --panel:#271619; --panel-2:#2f1a1d; --line:rgba(241,230,211,.12);
@@ -58,9 +59,41 @@
   .result-actions a{flex:1;text-align:center;padding:11px;border-radius:10px;border:1px solid var(--line);color:var(--ivory);text-decoration:none;font-size:14px;font-family:'Noto Sans Myanmar';transition:.15s;}
   .result-actions a:hover{border-color:var(--gold);color:var(--gold-soft);}
   footer{margin-top:28px;font-size:12.5px;color:var(--ivory-dim);text-align:center;line-height:1.7;}
+
+  /* ---------- Auth ---------- */
+  .user-badge{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ivory-dim);}
+  .user-badge img{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);}
+  .signout-btn{background:none;border:1px solid var(--line);color:var(--ivory-dim);font-size:12px;padding:5px 10px;border-radius:99px;cursor:pointer;font-family:'Noto Sans Myanmar';}
+  .signout-btn:hover{border-color:var(--err);color:var(--err);}
+
+  #loginOverlay{
+    position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;
+    flex-direction:column;padding:24px;z-index:100;text-align:center;
+  }
+  #loginOverlay .brand-mark{font-family:'Fraunces',serif;font-weight:700;font-size:28px;color:var(--gold-soft);margin-bottom:6px;}
+  #loginOverlay p{color:var(--ivory-dim);font-size:14px;margin:0 0 28px;max-width:320px;}
+  .google-btn{
+    display:flex;align-items:center;gap:10px;background:var(--ivory);color:#241209;
+    border:none;padding:13px 26px;border-radius:10px;font-family:'Noto Sans Myanmar';font-weight:600;
+    font-size:15px;cursor:pointer;transition:.15s;
+  }
+  .google-btn:hover{filter:brightness(.95);}
+  .google-btn svg{width:19px;height:19px;}
+  #appContent{display:none;}
 </style>
 </head>
 <body>
+
+<div id="loginOverlay">
+  <div class="brand-mark">အသံပုံ</div>
+  <p>Voice Clone Studio ကို သုံးဖို့ Google account နဲ့ login ဝင်ပါ (Account အသစ်ဆိုရင် အလိုအလျောက် ဖွင့်ပေးပါလိမ့်မယ်)</p>
+  <button class="google-btn" id="googleLoginBtn">
+    <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.47c-.28 1.5-1.13 2.78-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.11C3.24 21.3 7.28 24 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.9 12c0-.79.14-1.56.37-2.28V6.61H1.26A11.98 11.98 0 0 0 0 12c0 1.93.46 3.76 1.26 5.39l4.01-3.11Z"/><path fill="#EA4335" d="M12 4.77c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.28 0 3.24 2.7 1.26 6.61l4.01 3.11C6.22 6.87 8.87 4.77 12 4.77Z"/></svg>
+    Google နဲ့ Login ဝင်ရန်
+  </button>
+</div>
+
+<div id="appContent">
 <div class="wrap">
 
   <header>
@@ -68,7 +101,21 @@
       <span class="brand-mark">အသံပုံ</span>
       <span class="brand-sub">Voice Clone Studio</span>
     </div>
+    <div class="user-badge" id="userBadge">
+      <img id="userAvatar" src="" alt="">
+      <span id="userEmail"></span>
+      <button class="signout-btn" id="signoutBtn">Sign out</button>
+    </div>
   </header>
+
+  <div class="panel">
+    <h2>Access Code (Optional)</h2>
+    <p class="hint">Plan ဝယ်ထားရင် Code ထည့်ပါ — မထည့်ရင် နေ့စဉ် အခမဲ့ 500 စာလုံး trial အနေနဲ့ အလိုအလျောက် သုံးမိပါလိမ့်မယ်</p>
+    <div class="field">
+      <input type="text" id="codeInput" placeholder="ဥပမာ — JOKER-A1B2C3D4" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--ivory);padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:14px;">
+    </div>
+    <div class="hint" id="balanceInfo" style="margin-top:10px;"></div>
+  </div>
 
   <div class="panel">
     <h2>၁ · Reference အသံ</h2>
@@ -109,8 +156,81 @@
   </footer>
 
 </div>
+</div>
 
 <script>
+// ---------- Supabase Auth (Google sign-in / sign-up) ----------
+const SUPABASE_URL = 'https://ykbbvtddcdsidiwldlgu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_GvGS7qgndobzBNO8FV6loQ_stWZpNl8';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const loginOverlay = document.getElementById('loginOverlay');
+const appContent = document.getElementById('appContent');
+const googleLoginBtn = document.getElementById('googleLoginBtn');
+const signoutBtn = document.getElementById('signoutBtn');
+const userAvatar = document.getElementById('userAvatar');
+const userEmail = document.getElementById('userEmail');
+
+async function refreshAuthUI() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session && session.user) {
+    loginOverlay.style.display = 'none';
+    appContent.style.display = 'block';
+    const u = session.user;
+    userEmail.textContent = u.email || '';
+    userAvatar.src = (u.user_metadata && u.user_metadata.avatar_url) || '';
+    userAvatar.style.display = userAvatar.src ? 'inline-block' : 'none';
+
+    // Login ဝင်ပြီးသား account ရဲ့ email ကို access-code field auto-fill လုပ်ဖို့ localStorage ကနေ ပြန်ခေါ်မယ်
+    const savedCode = localStorage.getItem('joker_access_code_' + u.id);
+    if (savedCode) {
+      document.getElementById('codeInput').value = savedCode;
+      checkBalance(savedCode);
+    }
+  } else {
+    loginOverlay.style.display = 'flex';
+    appContent.style.display = 'none';
+  }
+}
+
+googleLoginBtn.addEventListener('click', async () => {
+  await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href },
+  });
+});
+
+signoutBtn.addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  refreshAuthUI();
+});
+
+supabaseClient.auth.onAuthStateChange((_event, _session) => { refreshAuthUI(); });
+refreshAuthUI();
+
+// ---------- Access code balance check ----------
+async function checkBalance(code) {
+  const balanceEl = document.getElementById('balanceInfo');
+  if (!code) { balanceEl.textContent = ''; return; }
+  try {
+    const res = await fetch(`/api/license/${encodeURIComponent(code)}`);
+    const data = await res.json();
+    if (!res.ok) { balanceEl.textContent = '⚠️ ' + (data.error || 'Code မမှန်ပါ'); return; }
+    const expiresDate = new Date(data.expires_at).toLocaleDateString('my-MM');
+    balanceEl.textContent = `Plan: ${data.plan} · ကျန်ရှိ: ${data.remaining.toLocaleString()} စာလုံး · သက်တမ်း: ${expiresDate}`;
+  } catch (e) {
+    balanceEl.textContent = '';
+  }
+}
+document.getElementById('codeInput').addEventListener('change', async (e) => {
+  const code = e.target.value.trim();
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session && session.user && code) {
+    localStorage.setItem('joker_access_code_' + session.user.id, code);
+  }
+  checkBalance(code);
+});
+
 const els = {
   dropZone: document.getElementById('dropZone'),
   fileInput: document.getElementById('fileInput'),
@@ -165,7 +285,11 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 // ---------- Main generate flow — ကိုယ့် backend (/api/...) ကိုပဲ ခေါ်မယ်၊ RunPod key ကို frontend က လုံးဝ မသိပါ ----------
 els.generateBtn.addEventListener('click', async () => {
   const text = els.textInput.value.trim();
+  const code = document.getElementById('codeInput').value.trim();
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  const userEmailAddr = session && session.user ? session.user.email : null;
 
+  if (!userEmailAddr) { setStatus('error', 'Login ဝင်ပါ'); return; }
   if (!referenceFile) { setStatus('error', 'Reference အသံဖိုင် တင်ပါ'); return; }
   if (!text) { setStatus('error', 'ပြောစေချင်တဲ့ စာသား ရိုက်ထည့်ပါ'); return; }
 
@@ -180,7 +304,7 @@ els.generateBtn.addEventListener('click', async () => {
     const runRes = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text, reference_audio_b64: audioB64, reference_text: "" }),
+      body: JSON.stringify({ text: text, reference_audio_b64: audioB64, reference_text: "", code: code || undefined, email: userEmailAddr }),
     });
     const runData = await runRes.json();
     if (!runRes.ok) throw new Error(runData.error || 'Server error');
@@ -212,6 +336,7 @@ els.generateBtn.addEventListener('click', async () => {
         els.resultBox.style.display = 'block';
         setStatus('done', 'ပြီးပါပြီ 🎉');
         els.generateBtn.disabled = false;
+        checkBalance(code);
         return;
       }
       if (statusData.status === 'FAILED') throw new Error('Generate မအောင်မြင်ပါ');
