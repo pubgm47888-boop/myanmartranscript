@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>အသံပုံ — Voice Clone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1c1012; --panel:#271619; --panel-2:#2f1a1d; --line:rgba(241,230,211,.12);
+    --gold:#c9a24b; --gold-soft:#e4c77b; --ivory:#f1e6d3; --ivory-dim:rgba(241,230,211,.62);
+    --teal:#4c8078; --err:#d97757; --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(1200px 600px at 15% -10%, rgba(201,162,75,.10), transparent 60%), var(--bg);
+    color:var(--ivory); font-family:'Noto Sans Myanmar','Fraunces',serif; min-height:100vh; line-height:1.6;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:32px 20px 80px;}
+  header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px;gap:12px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:baseline;gap:10px;}
+  .brand-mark{font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:var(--gold-soft);letter-spacing:.02em;}
+  .brand-sub{font-size:13px;color:var(--ivory-dim);font-family:'Noto Sans Myanmar';}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:16px;}
+  .panel h2{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--gold-soft);margin:0 0 4px;letter-spacing:.01em;}
+  .panel .hint{font-size:13px;color:var(--ivory-dim);margin:0 0 14px;}
+  textarea{
+    width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--ivory);
+    padding:12px 14px;font-family:'Noto Sans Myanmar';font-size:15px;resize:vertical;min-height:140px;transition:.15s;
+  }
+  textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,75,.15);}
+  .drop{border:1.5px dashed var(--line);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:.15s;background:var(--bg);}
+  .drop:hover, .drop.drag{border-color:var(--gold);background:rgba(201,162,75,.06);}
+  .drop input{display:none;}
+  .drop .icon{font-size:22px;margin-bottom:6px;color:var(--gold-soft);}
+  .drop .label{font-size:14px;color:var(--ivory-dim);}
+  .drop .filename{font-size:13px;color:var(--gold-soft);margin-top:6px;font-family:'JetBrains Mono',monospace;}
+  audio{width:100%;margin-top:12px;height:36px;}
+  .charcount{font-size:12px;color:var(--ivory-dim);text-align:right;margin-top:6px;font-family:'JetBrains Mono',monospace;}
+  button.primary{
+    width:100%;padding:15px;border:none;border-radius:10px;
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color:#241209;font-family:'Fraunces',serif;font-weight:700;font-size:16px;cursor:pointer;letter-spacing:.01em;transition:.15s;
+  }
+  button.primary:hover{filter:brightness(1.06);}
+  button.primary:disabled{opacity:.5;cursor:not-allowed;filter:none;}
+  .status{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:14px;display:none;align-items:center;gap:10px;font-family:'Noto Sans Myanmar';}
+  .status.show{display:flex;}
+  .status.working{background:rgba(201,162,75,.10);border:1px solid rgba(201,162,75,.3);color:var(--gold-soft);}
+  .status.error{background:rgba(217,119,87,.10);border:1px solid rgba(217,119,87,.35);color:var(--err);}
+  .status.done{background:rgba(76,128,120,.12);border:1px solid rgba(76,128,120,.4);color:#8fc3ba;}
+  .spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(201,162,75,.25);border-top-color:var(--gold-soft);animation:spin .7s linear infinite;flex:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .result{margin-top:14px;}
+  .result-actions{display:flex;gap:10px;margin-top:10px;}
+  .result-actions a{flex:1;text-align:center;padding:11px;border-radius:10px;border:1px solid var(--line);color:var(--ivory);text-decoration:none;font-size:14px;font-family:'Noto Sans Myanmar';transition:.15s;}
+  .result-actions a:hover{border-color:var(--gold);color:var(--gold-soft);}
+  footer{margin-top:28px;font-size:12.5px;color:var(--ivory-dim);text-align:center;line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="brand-mark">အသံပုံ</span>
+      <span class="brand-sub">Voice Clone Studio</span>
+    </div>
+  </header>
+
+  <div class="panel">
+    <h2>၁ · Reference အသံ</h2>
+    <p class="hint">Clone လုပ်ချင်တဲ့ အသံရှင်ရဲ့ voice clip (၁၀-၅၀ စက္ကန့်) ကို တင်ပါ — ရှင်းလင်းပြီး background noise နည်းလေ ကောင်းလေပါ။</p>
+    <div class="drop" id="dropZone">
+      <input type="file" id="fileInput" accept="audio/*">
+      <div class="icon">♪</div>
+      <div class="label" id="dropLabel">ဒီနေရာကို နှိပ်ပြီး audio file ရွေးပါ</div>
+      <div class="filename" id="fileName"></div>
+      <audio id="refPreview" controls style="display:none;"></audio>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>၂ · ပြောစေချင်တဲ့ စာသား</h2>
+    <div class="field">
+      <textarea id="textInput" placeholder="မြန်မာစာသားကို ဒီနေရာမှာ ရိုက်ထည့်ပါ..."></textarea>
+      <div class="charcount"><span id="charCount">0</span> စာလုံး</div>
+    </div>
+  </div>
+
+  <button class="primary" id="generateBtn">Clone လုပ်ပါ</button>
+
+  <div class="status" id="statusBox"></div>
+
+  <div class="result" id="resultBox" style="display:none;">
+    <div class="panel">
+      <h2>ရလဒ်</h2>
+      <audio id="resultAudio" controls></audio>
+      <div class="result-actions">
+        <a id="downloadLink" download="cloned-voice.mp3">⬇ Download</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    အသံရှင်ရဲ့ ခွင့်ပြုချက်ဖြင့်သာ အသုံးပြုပါ — အခြားသူ့အသံကို ခွင့်ပြုချက်မရှိဘဲ clone လုပ်ခြင်းသည် အလွဲသုံးစားဖြစ်နိုင်ပါသည်။
+  </footer>
+
+</div>
+
+<script>
+const els = {
+  dropZone: document.getElementById('dropZone'),
+  fileInput: document.getElementById('fileInput'),
+  dropLabel: document.getElementById('dropLabel'),
+  fileName: document.getElementById('fileName'),
+  refPreview: document.getElementById('refPreview'),
+  textInput: document.getElementById('textInput'),
+  charCount: document.getElementById('charCount'),
+  generateBtn: document.getElementById('generateBtn'),
+  statusBox: document.getElementById('statusBox'),
+  resultBox: document.getElementById('resultBox'),
+  resultAudio: document.getElementById('resultAudio'),
+  downloadLink: document.getElementById('downloadLink'),
+};
+
+let referenceFile = null;
+
+els.dropZone.addEventListener('click', () => els.fileInput.click());
+els.dropZone.addEventListener('dragover', e => { e.preventDefault(); els.dropZone.classList.add('drag'); });
+els.dropZone.addEventListener('dragleave', () => els.dropZone.classList.remove('drag'));
+els.dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  els.dropZone.classList.remove('drag');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+els.fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
+function handleFile(file) {
+  referenceFile = file;
+  els.dropLabel.textContent = 'အသစ်တင်ရန် ဒီနေရာကို ပြန်နှိပ်ပါ';
+  els.fileName.textContent = file.name;
+  els.refPreview.src = URL.createObjectURL(file);
+  els.refPreview.style.display = 'block';
+}
+
+els.textInput.addEventListener('input', () => { els.charCount.textContent = els.textInput.value.length; });
+
+function setStatus(kind, message, spinner) {
+  els.statusBox.className = 'status show ' + kind;
+  els.statusBox.innerHTML = (spinner ? '<div class="spinner"></div>' : '') + '<span>' + message + '</span>';
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ---------- Main generate flow — ကိုယ့် backend (/api/...) ကိုပဲ ခေါ်မယ်၊ RunPod key ကို frontend က လုံးဝ မသိပါ ----------
+els.generateBtn.addEventListener('click', async () => {
+  const text = els.textInput.value.trim();
+
+  if (!referenceFile) { setStatus('error', 'Reference အသံဖိုင် တင်ပါ'); return; }
+  if (!text) { setStatus('error', 'ပြောစေချင်တဲ့ စာသား ရိုက်ထည့်ပါ'); return; }
+
+  els.generateBtn.disabled = true;
+  els.resultBox.style.display = 'none';
+  setStatus('working', 'Reference အသံကို ပြင်ဆင်နေပါတယ်...', true);
+
+  try {
+    const audioB64 = await fileToBase64(referenceFile);
+
+    setStatus('working', 'Server ဆီ ပို့နေပါတယ်...', true);
+    const runRes = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, reference_audio_b64: audioB64, reference_text: "" }),
+    });
+    const runData = await runRes.json();
+    if (!runRes.ok) throw new Error(runData.error || 'Server error');
+    const jobId = runData.id;
+    if (!jobId) throw new Error('Job ID မရပါ');
+
+    let attempts = 0;
+    const maxAttempts = 120;
+    while (attempts < maxAttempts) {
+      attempts++;
+      await sleep(5000);
+
+      const statusRes = await fetch(`/api/status/${jobId}`);
+      const statusData = await statusRes.json();
+
+      if (statusData.status === 'COMPLETED') {
+        const output = statusData.output;
+        if (output && output.error) throw new Error(output.error);
+        if (!output || !output.audio_b64) throw new Error('Audio output မရပါ');
+
+        const audioBytes = atob(output.audio_b64);
+        const arr = new Uint8Array(audioBytes.length);
+        for (let i = 0; i < audioBytes.length; i++) arr[i] = audioBytes.charCodeAt(i);
+        const blob = new Blob([arr], { type: 'audio/mpeg' });
+        const url = URL.createObjectURL(blob);
+
+        els.resultAudio.src = url;
+        els.downloadLink.href = url;
+        els.resultBox.style.display = 'block';
+        setStatus('done', 'ပြီးပါပြီ 🎉');
+        els.generateBtn.disabled = false;
+        return;
+      }
+      if (statusData.status === 'FAILED') throw new Error('Generate မအောင်မြင်ပါ');
+      setStatus('working', `Generating... (${statusData.status || 'IN_QUEUE'}, ${attempts * 5}s)`, true);
+    }
+    throw new Error('အချိန်ကြာလွန်းသွားပါတယ် — စာသားကို တိုစေပြီး ပြန်စမ်းကြည့်ပါ');
+
+  } catch (err) {
+    console.error(err);
+    setStatus('error', '❌ ' + err.message);
+    els.generateBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
