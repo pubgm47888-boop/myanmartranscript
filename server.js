@@ -8,24 +8,46 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const RUNPOD_API_KEY = process.env.RUNPOD_API_KEY;
 const RUNPOD_ENDPOINT_ID = process.env.RUNPOD_ENDPOINT_ID;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-// Admin ၂ ယောက်ရဲ့ Telegram username (без @), comma ခြား — ဥပမာ "kopyae131019,SZMOFF848"
-const ADMIN_TELEGRAM_USERNAMES = (process.env.ADMIN_TELEGRAM_USERNAMES || '')
-  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; // Render Environment Variables ထဲ ထည့်ပါ
+const SUPABASE_URL = process.env.SUPABASE_URL; // ဥပမာ https://xxxx.supabase.co
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; // Supabase → Settings → API → service_role (SECRET — anon key မဟုတ်ပါ)
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; // BotFather ကနေ ရထားတဲ့ token
 
 if (!RUNPOD_API_KEY || !RUNPOD_ENDPOINT_ID) {
   console.error('⚠️  RUNPOD_API_KEY / RUNPOD_ENDPOINT_ID environment variable များ ထည့်ပါ');
 }
 if (!ADMIN_PASSWORD) {
-  console.error('⚠️  ADMIN_PASSWORD environment variable ထည့်ပါ');
-}
-if (!TELEGRAM_BOT_TOKEN) {
-  console.error('⚠️  TELEGRAM_BOT_TOKEN environment variable ထည့်ပါ — Telegram features အလုပ်မလုပ်ပါ');
+  console.error('⚠️  ADMIN_PASSWORD environment variable ထည့်ပါ — မထည့်ရင် admin panel ကို ဘယ်သူမှ မဝင်နိုင်ပါဘူး');
 }
 
+let TELEGRAM_BOT_USERNAME = null;
+
+// ---------- Telegram bot (username → chat_id capture, ပြီးရင် audio ပို့ဖို့) ----------
+if (TELEGRAM_BOT_TOKEN) {
+  const TelegramBot = require('node-telegram-bot-api');
+  const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
+
+  bot.getMe().then(me => { TELEGRAM_BOT_USERNAME = me.username; console.log('Telegram bot username:', me.username); });
+
+  bot.on('message', (msg) => {
+    if (msg.from && msg.from.username) {
+      db.saveTelegramUser(msg.from.username, msg.chat.id);
+    }
+    if (msg.text === '/start') {
+      bot.sendMessage(msg.chat.id,
+        '🎭 JOKER Voice Clone Bot ချိတ်ဆက်ပြီးပါပြီ!\n\n' +
+        'Website ပေါ်မှာ Voice clone generate လုပ်ပြီးရင် ဒီ Telegram ကို audio file အလိုအလျောက် ပို့ပေးပါလိမ့်မယ်။\n' +
+        'Website ထဲမှာ Telegram username ထည့်တဲ့နေရာမှာ @' + (msg.from.username || '(username မရှိသေးပါ — Telegram Settings ထဲ username အရင်ဖန်တီးပါ)') + ' လို့ ထည့်ပါ။'
+      );
+    }
+  });
+  bot.on('polling_error', (err) => console.error('Telegram polling error:', err.message));
+  console.log('Telegram bot polling started.');
+} else {
+  console.error('⚠️  TELEGRAM_BOT_TOKEN မထည့်ရသေးပါ — Telegram auto-delivery အလုပ်မလုပ်ပါ');
+}
+
+// ---------- Admin auth middleware (simple password header check) ----------
 function requireAdmin(req, res, next) {
   const provided = req.headers['x-admin-password'];
   if (!ADMIN_PASSWORD || provided !== ADMIN_PASSWORD) {
@@ -34,135 +56,7 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// =====================================================================
-// Telegram helpers
-// =====================================================================
-const TG_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
-
-async function tgCall(method, body) {
-  const res = await fetch(`${TG_API}/${method}`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-  });
-  return res.json();
-}
-
-async function tgSendPhotoBase64(chatId, base64, caption, replyMarkup) {
-  const buffer = Buffer.from(base64, 'base64');
-  const form = new FormData();
-  form.append('chat_id', chatId);
-  if (caption) form.append('caption', caption);
-  form.append('parse_mode', 'HTML');
-  if (replyMarkup) form.append('reply_markup', JSON.stringify(replyMarkup));
-  form.append('photo', new Blob([buffer]), 'screenshot.jpg');
-  const res = await fetch(`${TG_API}/sendPhoto`, { method: 'POST', body: form });
-  return res.json();
-}
-
-async function tgSendMessage(chatId, text, replyMarkup) {
-  return tgCall('sendMessage', { chat_id: chatId, text, parse_mode: 'HTML', reply_markup: replyMarkup });
-}
-
-async function tgEditCaption(chatId, messageId, caption) {
-  return tgCall('editMessageCaption', { chat_id: chatId, message_id: messageId, caption, parse_mode: 'HTML' });
-}
-
-async function tgAnswerCallback(callbackQueryId, text) {
-  return tgCall('answerCallbackQuery', { callback_query_id: callbackQueryId, text });
-}
-
-async function tgSendAudioBase64(chatId, base64, filename, caption) {
-  const buffer = Buffer.from(base64, 'base64');
-  const form = new FormData();
-  form.append('chat_id', chatId);
-  if (caption) form.append('caption', caption);
-  form.append('audio', new Blob([buffer], { type: 'audio/mpeg' }), filename || 'voice.mp3');
-  const res = await fetch(`${TG_API}/sendAudio`, { method: 'POST', body: form });
-  return res.json();
-}
-
-function getAdminChatIds() {
-  return ADMIN_TELEGRAM_USERNAMES.map(u => db.getTelegramChatId(u)).filter(Boolean);
-}
-
-async function notifyAdminsOfPayment(payment) {
-  const plan = payment.plan_code === 'ADDON'
-    ? { label: `Add-on ${db.ADDON_CHARS.toLocaleString()} စာလုံး` }
-    : { label: payment.plan_code };
-  const caption =
-    `🆕 <b>Payment တောင်းဆိုမှု #${payment.id}</b>\n` +
-    `👤 Email: ${payment.email || '-'}\n` +
-    `📨 Telegram: ${payment.telegram_username ? '@' + payment.telegram_username : '-'}\n` +
-    `📦 Plan: ${plan.label}\n` +
-    `💰 ငွေပမာဏ: ${payment.amount.toLocaleString()} ကျပ်`;
-  const replyMarkup = {
-    inline_keyboard: [[
-      { text: '✅ Approve', callback_data: `approve:${payment.id}` },
-      { text: '❌ Reject', callback_data: `reject:${payment.id}` },
-    ]],
-  };
-  const adminChatIds = getAdminChatIds();
-  if (!adminChatIds.length) {
-    console.error('⚠️  Admin telegram chat_id မတွေ့သေးပါ — admin ၂ ယောက်စလုံး bot ကို /start အရင်နှိပ်ပေးဖို့ လိုပါတယ်');
-    return;
-  }
-  for (const chatId of adminChatIds) {
-    if (payment.screenshot_b64) {
-      await tgSendPhotoBase64(chatId, payment.screenshot_b64, caption, replyMarkup);
-    } else {
-      await tgSendMessage(chatId, caption, replyMarkup);
-    }
-  }
-}
-
-// =====================================================================
-// Shared approve/reject logic (used by Telegram callback AND web admin)
-// =====================================================================
-async function approvePaymentCore(paymentId, decidedBy) {
-  const payment = db.getPayment(paymentId);
-  if (!payment) throw new Error('Payment မတွေ့ပါ');
-  if (payment.status !== 'pending') throw new Error(`ဒီ payment ကို ပြီးခဲ့ပါပြီ (${payment.status})`);
-
-  let license;
-  if (payment.plan_code === 'ADDON') {
-    if (!payment.email) throw new Error('Add-on approve ဖို့ email မရှိပါ');
-    const existing = db.getLicensesByEmail(payment.email).find(l => l.active && Date.now() < l.expires_at);
-    if (!existing) throw new Error('Active plan မရှိသေးတဲ့ user ဖြစ်လို့ Add-on approve မရပါ');
-    license = db.extendLicense(existing.code, db.ADDON_CHARS, 0);
-  } else {
-    license = db.createLicense(payment.plan_code, `Payment #${payment.id}${payment.telegram_username ? ' / @' + payment.telegram_username : ''}`);
-    if (payment.email) db.attachEmail(license.code, payment.email);
-  }
-
-  db.decidePayment(paymentId, 'approved', license.code);
-
-  // User ရဲ့ Telegram ကို link ထားပြီးသားဆိုရင် code ကို auto ပို့
-  const userChatId = db.getTelegramChatId(payment.telegram_username);
-  if (userChatId) {
-    const msg = payment.plan_code === 'ADDON'
-      ? `✅ Add-on approve ဖြစ်ပါပြီ — စာလုံးရေ ${db.ADDON_CHARS.toLocaleString()} ထပ်တိုးပြီးပါပြီ။`
-      : `✅ Payment approve ဖြစ်ပါပြီ 🎉\n\nသင့် Access Code: <code>${license.code}</code>\nPlan: ${payment.plan_code}\n\nApp ထဲက Access Code နေရာမှာ ဒီ code ကို ထည့်ပါ။`;
-    await tgSendMessage(userChatId, msg);
-  }
-
-  return license;
-}
-
-async function rejectPaymentCore(paymentId) {
-  const payment = db.getPayment(paymentId);
-  if (!payment) throw new Error('Payment မတွေ့ပါ');
-  if (payment.status !== 'pending') throw new Error(`ဒီ payment ကို ပြီးခဲ့ပါပြီ (${payment.status})`);
-  db.decidePayment(paymentId, 'rejected', null);
-
-  const userChatId = db.getTelegramChatId(payment.telegram_username);
-  if (userChatId) {
-    await tgSendMessage(userChatId, `❌ Payment #${payment.id} ကို confirm မလုပ်ပေးနိုင်ပါ — screenshot ပြန်စစ်ပြီး admin ကို ဆက်သွယ်ပါ။`);
-  }
-  return payment;
-}
-
-// =====================================================================
-// Public: customer voice-clone generate (license OR free-trial gated)
-// =====================================================================
+// ---------- Public: customer voice-clone generate (license OR free-trial gated) ----------
 app.post('/api/generate', async (req, res) => {
   try {
     const { text, reference_audio_b64, reference_text, code, email } = req.body;
@@ -172,7 +66,7 @@ app.post('/api/generate', async (req, res) => {
     if (code) {
       reserve = db.checkAndReserve(code, text.length);
       if (!reserve.ok) return res.status(403).json({ error: reserve.error });
-      if (email) db.attachEmail(code, email);
+      if (email) db.attachEmail(code, email); // ပထမဆုံးအကြိမ် သုံးတုန်းက account ကို code နဲ့ ချိတ်ပေးမယ်
     } else {
       if (!email) return res.status(400).json({ error: 'Login ဝင်ပြီးမှ (Free trial) သုံးလို့ရပါတယ်' });
       reserve = db.checkAndReserveFree(email, text.length);
@@ -207,6 +101,7 @@ app.get('/api/status/:jobId', async (req, res) => {
   }
 });
 
+// Customer/website ဘက်က code ရဲ့ balance/status ကို check ဖို့
 app.get('/api/license/:code', (req, res) => {
   const lic = db.getLicense(req.params.code);
   if (!lic) return res.status(404).json({ error: 'Code မတွေ့ပါ' });
@@ -219,102 +114,7 @@ app.get('/api/license/:code', (req, res) => {
   });
 });
 
-app.get('/api/plans', (req, res) => {
-  res.json({ plans: db.PLANS, addonChars: db.ADDON_CHARS, addonAmount: db.ADDON_AMOUNT, freeDailyChars: db.FREE_DAILY_CHARS });
-});
-
-// =====================================================================
-// Payment submission (plan ရွေး → QR ကြည့် → screenshot တင်)
-// =====================================================================
-app.post('/api/payment/submit', async (req, res) => {
-  try {
-    const { email, telegram_username, plan_code, screenshot_base64 } = req.body;
-    if (!plan_code || !screenshot_base64) return res.status(400).json({ error: 'Plan/screenshot ထည့်ပါ' });
-    if (!telegram_username) return res.status(400).json({ error: 'Telegram username ထည့်ပါ' });
-
-    const amount = plan_code === 'ADDON' ? db.ADDON_AMOUNT : (db.PLANS[plan_code] || {}).amount;
-    if (!amount) return res.status(400).json({ error: 'Plan code မမှန်ပါ' });
-
-    const payment = db.createPayment({ email, telegram_username, plan_code, amount, screenshot_b64: screenshot_base64 });
-    await notifyAdminsOfPayment(payment);
-
-    res.json({ ok: true, message: 'ပို့ပြီးပါပြီ — admin confirm လုပ်ပေးတာကို Telegram ထဲမှာ ခဏစောင့်ပါ' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Payment ပို့ခြင်း မအောင်မြင်ပါ' });
-  }
-});
-
-// =====================================================================
-// Telegram webhook — /start (username↔chat_id link) + Approve/Reject buttons
-// =====================================================================
-app.post('/telegram/webhook', async (req, res) => {
-  res.sendStatus(200);
-  try {
-    const msg = req.body.message;
-    if (msg && msg.text && msg.text.startsWith('/start')) {
-      if (msg.from.username) {
-        db.linkTelegram(msg.from.username, msg.chat.id);
-        await tgSendMessage(msg.chat.id, '✅ ချိတ်ဆက်ပြီးပါပြီ — App ထဲမှာ payment ပို့တာ/audio ရလဒ် ဒီ chat ထဲကို ရောက်လာပါလိမ့်မယ်။');
-      } else {
-        await tgSendMessage(msg.chat.id, '⚠️ Telegram username သတ်မှတ်ထားပါ (Settings → Username) — ဒါမှ app နဲ့ ချိတ်ဆက်နိုင်ပါမယ်။');
-      }
-      return;
-    }
-
-    const cb = req.body.callback_query;
-    if (cb) {
-      const chatId = String(cb.message.chat.id);
-      if (!getAdminChatIds().includes(chatId)) {
-        return tgAnswerCallback(cb.id, 'Admin permission မရှိပါ');
-      }
-      const [action, paymentIdStr] = cb.data.split(':');
-      const paymentId = Number(paymentIdStr);
-      try {
-        if (action === 'approve') {
-          const license = await approvePaymentCore(paymentId, `telegram:${chatId}`);
-          await tgEditCaption(chatId, cb.message.message_id, (cb.message.caption || '') + `\n\n✅ <b>APPROVED</b> — Code: <code>${license.code}</code>`);
-        } else if (action === 'reject') {
-          await rejectPaymentCore(paymentId);
-          await tgEditCaption(chatId, cb.message.message_id, (cb.message.caption || '') + '\n\n❌ <b>REJECTED</b>');
-        }
-        await tgAnswerCallback(cb.id, 'ပြီးပါပြီ');
-      } catch (err) {
-        await tgAnswerCallback(cb.id, err.message);
-      }
-    }
-  } catch (err) {
-    console.error('Telegram webhook error:', err);
-  }
-});
-
-// =====================================================================
-// Voice-clone ရလဒ် အသံဖိုင်ကို user ရဲ့ Telegram ထဲ auto ပို့ရန်
-// (Client က generation COMPLETED ဖြစ်တာနဲ့ ဒီ endpoint ကို ခေါ်မယ်)
-// =====================================================================
-app.post('/api/telegram/deliver', async (req, res) => {
-  try {
-    const { telegram_username, audio_b64 } = req.body;
-    if (!telegram_username || !audio_b64) return res.status(400).json({ error: 'Data မပြည့်စုံပါ' });
-
-    const chatId = db.getTelegramChatId(telegram_username);
-    if (!chatId) {
-      return res.status(404).json({
-        error: 'Telegram ချိတ်ဆက်မထားသေးပါ',
-        needsLink: true,
-      });
-    }
-    await tgSendAudioBase64(chatId, audio_b64, 'cloned-voice.mp3', '🎙 သင့် voice clone ရလဒ်');
-    res.json({ ok: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Telegram ပို့ခြင်း မအောင်မြင်ပါ' });
-  }
-});
-
-// =====================================================================
-// Admin: license management
-// =====================================================================
+// ---------- Admin: license management (password-protected) ----------
 app.post('/api/admin/login', (req, res) => {
   if (req.body.password === ADMIN_PASSWORD) return res.json({ ok: true });
   res.status(401).json({ ok: false });
@@ -355,30 +155,8 @@ app.get('/api/admin/plans', requireAdmin, (req, res) => {
   res.json({ plans: db.PLANS, addonChars: db.ADDON_CHARS, freeDailyChars: db.FREE_DAILY_CHARS });
 });
 
-// Admin: pending payments (web panel — Telegram approve ရှိပြီးသားနဲ့ parallel)
-app.get('/api/admin/payments', requireAdmin, (req, res) => {
-  res.json(db.listPayments(req.query.status || 'pending'));
-});
-
-app.post('/api/admin/payments/:id/approve', requireAdmin, async (req, res) => {
-  try {
-    const license = await approvePaymentCore(Number(req.params.id));
-    res.json({ ok: true, code: license.code });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-app.post('/api/admin/payments/:id/reject', requireAdmin, async (req, res) => {
-  try {
-    await rejectPaymentCore(Number(req.params.id));
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// Google login ဝင်ထားတဲ့ user အားလုံးကို Supabase ကနေ ဆွဲထုတ်
+// Google login ဝင်ထားတဲ့ user အားလုံးကို Supabase ကနေ ဆွဲထုတ်ပြီး
+// Free/VIP status + usage detail တွဲပြပေးမယ့် endpoint
 app.get('/api/admin/users', requireAdmin, async (req, res) => {
   try {
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
@@ -413,6 +191,46 @@ app.get('/api/admin/users', requireAdmin, async (req, res) => {
     });
 
     res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Frontend က t.me link တည်ဆောက်ဖို့ Bot username ကို ခေါ်ယူနိုင်အောင်
+app.get('/api/telegram-bot-info', (req, res) => {
+  res.json({ username: TELEGRAM_BOT_USERNAME });
+});
+
+// Website ကနေ generate ပြီးသား audio ကို user ရဲ့ Telegram ဆီ ပို့ဖို့
+app.post('/api/telegram/send', async (req, res) => {
+  try {
+    if (!TELEGRAM_BOT_TOKEN) return res.status(500).json({ error: 'Telegram bot ချိတ်ဆက်မထားပါ' });
+    const { username, audio_b64 } = req.body;
+    if (!username || !audio_b64) return res.status(400).json({ error: 'username / audio ပေးပါ' });
+
+    const chatId = db.getTelegramChatId(username);
+    if (!chatId) {
+      return res.status(404).json({
+        error: `@${username} ကို Telegram ဆီ ပို့လို့မရသေးပါ — Bot ကို /start အရင် နှိပ်ပေးပါ`,
+        botUsername: TELEGRAM_BOT_USERNAME,
+      });
+    }
+
+    const audioBuffer = Buffer.from(audio_b64, 'base64');
+    const form = new FormData();
+    form.append('chat_id', String(chatId));
+    form.append('audio', new Blob([audioBuffer], { type: 'audio/mpeg' }), 'cloned-voice.mp3');
+    form.append('caption', '🎭 JOKER Voice Clone — ပြီးစီးပါပြီ!');
+
+    const tgRes = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendAudio`, {
+      method: 'POST',
+      body: form,
+    });
+    const tgData = await tgRes.json();
+    if (!tgData.ok) return res.status(400).json({ error: tgData.description || 'Telegram ပို့လို့မရပါ' });
+
+    res.json({ ok: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error: ' + err.message });
