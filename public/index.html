@@ -20,6 +20,31 @@
     --ivory-dim:rgba(242,237,228,.6);
     --line:rgba(242,237,228,.1);
   }
+  [data-theme="light"]{
+    --black:#f5efe3;
+    --black-2:#ffffff;
+    --card:#ffffff;
+    --red:#c81f3d;
+    --red-glow:#e0173a;
+    --gold:#b8860b;
+    --gold-soft:#9a6f0a;
+    --ivory:#2b2013;
+    --ivory-dim:rgba(43,32,19,.62);
+    --line:rgba(43,32,19,.12);
+  }
+  [data-theme="light"] body{
+    background: radial-gradient(900px 500px at 85% -10%, rgba(200,31,61,.10), transparent 60%),
+                radial-gradient(700px 500px at 10% 10%, rgba(212,175,55,.14), transparent 55%),
+                var(--black);
+  }
+  [data-theme="light"] .plan{box-shadow:0 8px 24px rgba(43,32,19,.08);}
+  [data-theme="light"] .logo-face.front{background:linear-gradient(155deg, var(--red), #8e1329);}
+  [data-theme="light"] .logo-face.back{background:linear-gradient(155deg, #f0d78c, #b8860b);}
+  .theme-toggle{
+    background:var(--card);border:1px solid var(--line);width:38px;height:38px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:16px;transition:.2s;
+  }
+  .theme-toggle:hover{border-color:var(--gold);transform:rotate(15deg);}
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
@@ -100,8 +125,19 @@
   }
   .hero h2 .flip{color:var(--red-glow);display:inline-block;}
   .hero p.sub{
-    font-size:16px;color:var(--ivory-dim);max-width:480px;margin:0 auto 30px;line-height:1.75;
+    font-size:16px;color:var(--ivory-dim);max-width:480px;margin:0 auto 24px;line-height:1.75;
   }
+  .trust-row{
+    display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:30px;
+  }
+  .trust-badge{
+    display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ivory-dim);
+    border:1px solid var(--line);padding:6px 12px;border-radius:99px;font-family:'JetBrains Mono',monospace;
+  }
+  body{animation:pageFadeIn .6s ease both;}
+  @keyframes pageFadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .plan, .trial-banner{animation:cardFadeIn .5s ease both;}
+  @keyframes cardFadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 
   .trial-banner{
     display:inline-flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:center;
@@ -217,6 +253,25 @@
   }
   .pm-admin:hover{background:rgba(212,175,55,.15);}
   .pm-free-link{display:block;text-align:center;margin-top:16px;font-size:12.5px;color:var(--ivory-dim);text-decoration:underline;}
+  .pm-save-btn{
+    width:100%;padding:9px;margin:-8px 0 14px;border:1px solid rgba(212,175,55,.35);background:rgba(212,175,55,.08);
+    color:var(--gold-soft);border-radius:8px;font-family:'Noto Sans Myanmar';font-size:12.5px;cursor:pointer;transition:.15s;
+  }
+  .pm-save-btn:hover{background:rgba(212,175,55,.18);}
+
+  /* ---------- Shimmer glow ---------- */
+  .plan{position:relative;overflow:hidden;}
+  .plan::before{
+    content:"";position:absolute;top:0;left:-70%;width:35%;height:100%;
+    background:linear-gradient(100deg, transparent, rgba(212,175,55,.15), transparent);
+    transform:skewX(-20deg);animation:cardShine 7s ease-in-out infinite;pointer-events:none;
+  }
+  .plan:nth-child(2)::before{animation-delay:1s;}
+  .plan:nth-child(3)::before{animation-delay:2s;}
+  .plan:nth-child(4)::before{animation-delay:3s;}
+  .plan:nth-child(5)::before{animation-delay:4s;}
+  @keyframes cardShine{0%,20%{left:-70%;}55%,100%{left:140%;}}
+  .google-btn{position:relative;overflow:hidden;}
 </style>
 </head>
 <body>
@@ -257,7 +312,8 @@
       <span class="wordmark">JOKER<span class="accent">.</span></span>
     </a>
     <div class="nav-right">
-      <div class="nav-domain">jokervoiceclone</div>
+      <button class="theme-toggle" id="themeToggle">☀️</button>
+      <div class="nav-domain">jokervoiceclone.org</div>
       <div class="user-badge">
         <img id="userAvatar" src="" alt="" style="display:none;">
         <span id="userEmail"></span>
@@ -268,13 +324,20 @@
 
   <section class="hero">
     <div class="eyebrow">♠ MYANMAR AI VOICE CLONE</div>
-    <h2>သင့်အသံကို<br><span class="flip">ဂျိုကာ</span>မှထုတ်ယူပါ</h2>
+    <h2>သင့်အသံကို<br><span class="flip">ဂျိုကာ</span>က ကစားပါစေ</h2>
     <p class="sub">Reference အသံ တစ်ခုတင်ပါ၊ စာသားရိုက်ပါ — မြန်မာအသံနဲ့ ချက်ချင်း clone ထုတ်ပေးပါမယ်။</p>
+
+    <div class="trust-row">
+      <span class="trust-badge">⚡ လျင်မြန်</span>
+      <span class="trust-badge">🇲🇲 မြန်မာအသံ Native</span>
+      <span class="trust-badge">🔒 လုံခြုံ</span>
+      <span class="trust-badge">🎭 Unlimited Voice</span>
+    </div>
 
     <div class="trial-banner">
       <span class="tag">🎁 FREE TRIAL</span>
       <span class="desc">နေ့စဉ်အစမ်းသုံး — တစ်နေ့တစ်ကြိမ် / 500 စာလုံး</span>
-      <span class="domain">jokervoiceclone</span>
+      <span class="domain">jokervoiceclone.org</span>
     </div>
     <div style="margin-top:24px;">
       <a href="app.html" style="display:inline-block;font-family:'Bungee',cursive;font-size:15px;color:#fff;background:linear-gradient(180deg,var(--red-glow),var(--red));padding:14px 32px;border-radius:12px;text-decoration:none;box-shadow:0 10px 26px rgba(200,31,61,.35);">အခုစမ်းကြည့်ရန် →</a>
@@ -352,7 +415,7 @@
 
   <footer>
     <span class="fw">JOKER Voice Clone</span>
-    melvoiceclone.org · အသံရှင်ရဲ့ ခွင့်ပြုချက်ဖြင့်သာ အသုံးပြုပါ
+    အသံရှင်ရဲ့ ခွင့်ပြုချက်ဖြင့်သာ အသုံးပြုပါ
   </footer>
 </div>
 </div>
@@ -363,9 +426,15 @@
     <h3>💳 ငွေလွှဲ Payment</h3>
     <div class="pm-plan-name" id="pmPlanInfo"></div>
 
-    <img class="pm-qr" src="https://i.postimg.cc/KjN8V0mj/Screenshot-2026-07-24-10-56-44-688-mm-com-wavemoney-wavepay.jpg" alt="Payment QR">
-    <img class="pm-qr" src="https://i.postimg.cc/J0cs815z/IMG-20260724-105406-453.jpg" alt="Payment info">
-    <img class="pm-qr" src="https://i.postimg.cc/L5BJSH3h/IMG-20260724-105400-422.jpg" alt="Payment info 2">
+    <img class="pm-qr" id="qr1" src="https://i.postimg.cc/KjN8V0mj/Screenshot-2026-07-24-10-56-44-688-mm-com-wavemoney-wavepay.jpg" alt="Payment QR">
+    <button class="pm-save-btn" onclick="saveQR('qr1','joker-payment-1.jpg')">⬇ ဒီပုံကို Save လုပ်မယ်</button>
+
+    <img class="pm-qr" id="qr2" src="https://i.postimg.cc/J0cs815z/IMG-20260724-105406-453.jpg" alt="Payment info">
+    <button class="pm-save-btn" onclick="saveQR('qr2','joker-payment-2.jpg')">⬇ ဒီပုံကို Save လုပ်မယ်</button>
+
+    <img class="pm-qr" id="qr3" src="https://i.postimg.cc/L5BJSH3h/IMG-20260724-105400-422.jpg" alt="Payment info 2">
+    <button class="pm-save-btn" onclick="saveQR('qr3','joker-payment-3.jpg')">⬇ ဒီပုံကို Save လုပ်မယ်</button>
+    <p style="font-size:11.5px;color:var(--ivory-dim);text-align:center;margin:4px 0 14px;">Save button အလုပ်မလုပ်ရင် — ပုံပေါ်မှာ လက်ညှိုးနဲ့ ဖိထားပြီး "Save image" ကို ရွေးပါ</p>
 
     <p class="pm-step"><b>၁.</b> အထက်က QR/Account ကို Wave Pay/KBZPay နဲ့ ငွေလွှဲပါ</p>
     <p class="pm-step"><b>၂.</b> လွှဲပြီးသား Screenshot ကို အောက်က Admin Telegram တစ်ယောက်ဆီ ပို့ပါ (Plan အမည် ထည့်ရေးပါ)</p>
@@ -431,6 +500,35 @@ signoutBtn.addEventListener('click', async () => {
 
 supabaseClient.auth.onAuthStateChange(() => { refreshAuthUI(); });
 refreshAuthUI();
+
+// ---------- Day / Night theme ----------
+const themeToggle = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
+  localStorage.setItem('joker_theme', theme);
+}
+applyTheme(localStorage.getItem('joker_theme') || 'dark');
+themeToggle.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'light' ? 'dark' : 'light');
+});
+
+// ---------- QR Save/Download ----------
+async function saveQR(imgId, filename) {
+  const img = document.getElementById(imgId);
+  try {
+    const res = await fetch(img.src, { mode: 'cors' });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Auto-save မရပါ — ပုံပေါ်မှာ လက်ညှိုးနဲ့ ဖိထားပြီး "Save image" ကို ရွေးပါ');
+  }
+}
 </script>
 
 </body>
