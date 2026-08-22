@@ -9,83 +9,113 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --bg:#1c1012; --panel:#271619; --panel-2:#2f1a1d; --line:rgba(241,230,211,.12);
-    --gold:#c9a24b; --gold-soft:#e4c77b; --ivory:#f1e6d3; --ivory-dim:rgba(241,230,211,.62);
-    --teal:#4c8078; --err:#d97757; --radius:14px;
+    --bg:#faf6ea; --panel:#ffffff; --panel-2:#fffdf6; --line:rgba(190,150,60,.2);
+    --gold:#d4af37; --gold-2:#f3d980; --gold-dark:#9c7a1e; --ivory:#2b2210; --ivory-dim:rgba(43,34,16,.62);
+    --teal:#3f8f76; --err:#d1495b; --radius:20px;
+    --shadow-puff: 0 14px 30px rgba(190,150,60,.16), 0 3px 8px rgba(190,150,60,.12), inset 0 1px 0 rgba(255,255,255,.7);
+    --shadow-btn: 0 10px 22px rgba(212,175,55,.4), inset 0 1px 0 rgba(255,255,255,.6), inset 0 -4px 8px rgba(150,110,10,.25);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background: radial-gradient(1200px 600px at 15% -10%, rgba(201,162,75,.10), transparent 60%), var(--bg);
+    background:
+      radial-gradient(1000px 550px at 85% -10%, rgba(243,217,128,.45), transparent 60%),
+      radial-gradient(800px 500px at 5% 100%, rgba(212,175,55,.14), transparent 60%),
+      var(--bg);
     color:var(--ivory); font-family:'Noto Sans Myanmar','Fraunces',serif; min-height:100vh; line-height:1.6;
   }
   .wrap{max-width:760px;margin:0 auto;padding:32px 20px 80px;}
   header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px;gap:12px;flex-wrap:wrap;}
   .brand{display:flex;align-items:baseline;gap:10px;}
-  .brand-mark{font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:var(--gold-soft);letter-spacing:.02em;}
+  .brand-mark{font-family:'Fraunces',serif;font-weight:700;font-size:24px;color:var(--gold-dark);letter-spacing:.02em;text-shadow:0 1px 0 #fff;}
   .brand-sub{font-size:13px;color:var(--ivory-dim);font-family:'Noto Sans Myanmar';}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:16px;}
-  .panel h2{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--gold-soft);margin:0 0 4px;letter-spacing:.01em;}
-  .panel .hint{font-size:13px;color:var(--ivory-dim);margin:0 0 14px;}
-  textarea{
-    width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--ivory);
-    padding:12px 14px;font-family:'Noto Sans Myanmar';font-size:15px;resize:vertical;min-height:140px;transition:.15s;
+  .panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:18px;
+    box-shadow:var(--shadow-puff);
   }
-  textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,75,.15);}
-  .drop{border:1.5px dashed var(--line);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:.15s;background:var(--bg);}
-  .drop:hover, .drop.drag{border-color:var(--gold);background:rgba(201,162,75,.06);}
+  .panel h2{font-family:'Fraunces',serif;font-weight:600;font-size:16px;color:var(--gold-dark);margin:0 0 4px;letter-spacing:.01em;}
+  .panel .hint{font-size:13px;color:var(--ivory-dim);margin:0 0 14px;}
+  textarea, input[type=text]{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:14px;color:var(--ivory);
+    padding:13px 16px;font-family:'Noto Sans Myanmar';font-size:15px;resize:vertical;min-height:140px;transition:.15s;
+    box-shadow:inset 0 2px 6px rgba(150,110,10,.08);
+  }
+  input[type=text]{min-height:auto;}
+  textarea:focus, input[type=text]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.18), inset 0 2px 6px rgba(150,110,10,.08);}
+  .drop{border:1.5px dashed var(--line);border-radius:16px;padding:22px;text-align:center;cursor:pointer;transition:.15s;background:var(--panel-2);}
+  .drop:hover, .drop.drag{border-color:var(--gold);background:rgba(212,175,55,.08);}
   .drop input{display:none;}
-  .drop .icon{font-size:22px;margin-bottom:6px;color:var(--gold-soft);}
+  .drop .icon{font-size:24px;margin-bottom:6px;color:var(--gold-dark);}
   .drop .label{font-size:14px;color:var(--ivory-dim);}
-  .drop .filename{font-size:13px;color:var(--gold-soft);margin-top:6px;font-family:'JetBrains Mono',monospace;}
-  audio{width:100%;margin-top:12px;height:36px;}
+  .drop .filename{font-size:13px;color:var(--gold-dark);margin-top:6px;font-family:'JetBrains Mono',monospace;}
+  audio{width:100%;margin-top:12px;height:38px;border-radius:12px;}
   .charcount{font-size:12px;color:var(--ivory-dim);text-align:right;margin-top:6px;font-family:'JetBrains Mono',monospace;}
   button.primary{
-    width:100%;padding:15px;border:none;border-radius:10px;
-    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
-    color:#241209;font-family:'Fraunces',serif;font-weight:700;font-size:16px;cursor:pointer;letter-spacing:.01em;transition:.15s;
+    width:100%;padding:17px;border:none;border-radius:16px;
+    background:linear-gradient(180deg, var(--gold-2), var(--gold));
+    color:#3a2a05;font-family:'Fraunces',serif;font-weight:700;font-size:17px;cursor:pointer;letter-spacing:.01em;
+    box-shadow:var(--shadow-btn); transition:transform .12s, box-shadow .12s;
   }
-  button.primary:hover{filter:brightness(1.06);}
-  button.primary:disabled{opacity:.5;cursor:not-allowed;filter:none;}
-  .status{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:14px;display:none;align-items:center;gap:10px;font-family:'Noto Sans Myanmar';}
+  button.primary:hover{transform:translateY(-2px);}
+  button.primary:active{transform:translateY(1px);box-shadow:0 4px 10px rgba(212,175,55,.35), inset 0 3px 6px rgba(150,110,10,.3);}
+  button.primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  button.secondary{
+    width:100%;padding:13px;border:1px solid var(--line);border-radius:14px;background:var(--panel-2);
+    color:var(--gold-dark);font-family:'Noto Sans Myanmar';font-weight:600;font-size:14px;cursor:pointer;
+  }
+  .status{margin-top:14px;padding:13px 16px;border-radius:14px;font-size:14px;display:none;align-items:center;gap:10px;font-family:'Noto Sans Myanmar';}
   .status.show{display:flex;}
-  .status.working{background:rgba(201,162,75,.10);border:1px solid rgba(201,162,75,.3);color:var(--gold-soft);}
-  .status.error{background:rgba(217,119,87,.10);border:1px solid rgba(217,119,87,.35);color:var(--err);}
-  .status.done{background:rgba(76,128,120,.12);border:1px solid rgba(76,128,120,.4);color:#8fc3ba;}
-  .spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(201,162,75,.25);border-top-color:var(--gold-soft);animation:spin .7s linear infinite;flex:none;}
+  .status.working{background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.35);color:var(--gold-dark);}
+  .status.error{background:rgba(209,73,91,.1);border:1px solid rgba(209,73,91,.35);color:var(--err);}
+  .status.done{background:rgba(63,143,118,.12);border:1px solid rgba(63,143,118,.4);color:var(--teal);}
+  .spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(212,175,55,.25);border-top-color:var(--gold-dark);animation:spin .7s linear infinite;flex:none;}
   @keyframes spin{to{transform:rotate(360deg);}}
   .result{margin-top:14px;}
   .result-actions{display:flex;gap:10px;margin-top:10px;}
-  .result-actions a{flex:1;text-align:center;padding:11px;border-radius:10px;border:1px solid var(--line);color:var(--ivory);text-decoration:none;font-size:14px;font-family:'Noto Sans Myanmar';transition:.15s;}
-  .result-actions a:hover{border-color:var(--gold);color:var(--gold-soft);}
+  .result-actions a{flex:1;text-align:center;padding:12px;border-radius:14px;border:1px solid var(--line);color:var(--ivory);text-decoration:none;font-size:14px;font-family:'Noto Sans Myanmar';background:var(--panel-2);transition:.15s;}
+  .result-actions a:hover{border-color:var(--gold);color:var(--gold-dark);}
   footer{margin-top:28px;font-size:12.5px;color:var(--ivory-dim);text-align:center;line-height:1.7;}
 
-  /* ---------- Auth ---------- */
   .user-badge{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ivory-dim);}
-  .user-badge img{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);}
-  .signout-btn{background:none;border:1px solid var(--line);color:var(--ivory-dim);font-size:12px;padding:5px 10px;border-radius:99px;cursor:pointer;font-family:'Noto Sans Myanmar';}
+  .user-badge img{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+  .signout-btn{background:none;border:1px solid var(--line);color:var(--ivory-dim);font-size:12px;padding:6px 12px;border-radius:99px;cursor:pointer;font-family:'Noto Sans Myanmar';}
   .signout-btn:hover{border-color:var(--err);color:var(--err);}
 
   #loginOverlay{
-    position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;
+    position:fixed;inset:0;
+    background:
+      radial-gradient(1000px 550px at 85% -10%, rgba(243,217,128,.45), transparent 60%),
+      radial-gradient(800px 500px at 5% 100%, rgba(212,175,55,.14), transparent 60%),
+      var(--bg);
+    display:flex;align-items:center;justify-content:center;
     flex-direction:column;padding:24px;z-index:100;text-align:center;
   }
-  #loginOverlay .brand-mark{font-family:'Fraunces',serif;font-weight:700;font-size:28px;color:var(--gold-soft);margin-bottom:6px;}
+  #loginOverlay .brand-mark{font-family:'Fraunces',serif;font-weight:700;font-size:30px;color:var(--gold-dark);margin-bottom:6px;}
   #loginOverlay p{color:var(--ivory-dim);font-size:14px;margin:0 0 28px;max-width:320px;}
   .google-btn{
-    display:flex;align-items:center;gap:10px;background:var(--ivory);color:#241209;
-    border:none;padding:13px 26px;border-radius:10px;font-family:'Noto Sans Myanmar';font-weight:600;
-    font-size:15px;cursor:pointer;transition:.15s;
+    display:flex;align-items:center;gap:10px;background:#fff;color:#3a2a05;
+    border:none;padding:15px 28px;border-radius:16px;font-family:'Noto Sans Myanmar';font-weight:600;
+    font-size:15px;cursor:pointer;transition:.15s;box-shadow:var(--shadow-puff);
   }
-  .google-btn:hover{filter:brightness(.95);}
+  .google-btn:hover{transform:translateY(-2px);}
   .google-btn svg{width:19px;height:19px;}
   #appContent{display:none;}
+
+  /* ---------- Plan picker ---------- */
+  .plan-opt{border:1px solid var(--line);border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--panel-2);margin-bottom:8px;transition:.15s;}
+  .plan-opt:hover{border-color:var(--gold);}
+  .plan-opt.selected{border-color:var(--gold);background:rgba(212,175,55,.1);box-shadow:0 4px 12px rgba(212,175,55,.2);}
+  .plan-opt b{color:var(--gold-dark);}
+  .qr-imgs{display:flex;gap:10px;overflow-x:auto;margin:12px 0;}
+  .qr-imgs img{width:130px;height:130px;object-fit:cover;border-radius:14px;box-shadow:0 6px 16px rgba(0,0,0,.15);flex:none;}
+  .telegram-note{background:rgba(212,175,55,.1);border:1px solid var(--line);border-radius:14px;padding:12px 16px;font-size:13px;color:var(--ivory-dim);margin-bottom:14px;}
+  .telegram-note a{color:var(--gold-dark);font-weight:600;}
 </style>
 </head>
 <body>
 
 <div id="loginOverlay">
-  <div class="brand-mark">အသံပုံ</div>
+  <div class="brand-mark">🂡 အသံပုံ</div>
   <p>Voice Clone Studio ကို သုံးဖို့ Google account နဲ့ login ဝင်ပါ (Account အသစ်ဆိုရင် အလိုအလျောက် ဖွင့်ပေးပါလိမ့်မယ်)</p>
   <button class="google-btn" id="googleLoginBtn">
     <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.47c-.28 1.5-1.13 2.78-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.11C3.24 21.3 7.28 24 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.9 12c0-.79.14-1.56.37-2.28V6.61H1.26A11.98 11.98 0 0 0 0 12c0 1.93.46 3.76 1.26 5.39l4.01-3.11Z"/><path fill="#EA4335" d="M12 4.77c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.28 0 3.24 2.7 1.26 6.61l4.01 3.11C6.22 6.87 8.87 4.77 12 4.77Z"/></svg>
@@ -98,7 +128,7 @@
 
   <header>
     <div class="brand">
-      <span class="brand-mark">အသံပုံ</span>
+      <span class="brand-mark">🂡 အသံပုံ</span>
       <span class="brand-sub">Voice Clone Studio</span>
     </div>
     <div class="user-badge" id="userBadge">
@@ -109,12 +139,38 @@
   </header>
 
   <div class="panel">
+    <h2>Telegram</h2>
+    <p class="hint">Username ထည့်ထားပါ — Plan approve ဖြစ်တာနဲ့ Code ကို၊ voice clone ပြီးတာနဲ့ audio ကို ဒီ Telegram ဆီ auto ပို့ပေးပါမယ်</p>
+    <input type="text" id="telegramInput" placeholder="@ မပါဘဲ username ထည့်ပါ — ဥပမာ myaccount">
+    <div class="telegram-note" id="telegramLinkNote" style="display:none;">
+      ⚠️ Telegram bot ကို <b>/start</b> အရင်နှိပ်ဖို့ လိုပါတယ် — <a href="" id="botLink" target="_blank">ဒီမှာ ဖွင့်ပြီး /start ပို့ပါ</a>
+    </div>
+  </div>
+
+  <div class="panel">
     <h2>Access Code (Optional)</h2>
     <p class="hint">Plan ဝယ်ထားရင် Code ထည့်ပါ — မထည့်ရင် နေ့စဉ် အခမဲ့ 500 စာလုံး trial အနေနဲ့ အလိုအလျောက် သုံးမိပါလိမ့်မယ်</p>
-    <div class="field">
-      <input type="text" id="codeInput" placeholder="ဥပမာ — JOKER-A1B2C3D4" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--ivory);padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:14px;">
-    </div>
+    <input type="text" id="codeInput" placeholder="ဥပမာ — JOKER-A1B2C3D4" style="font-family:'JetBrains Mono',monospace;">
     <div class="hint" id="balanceInfo" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="panel">
+    <h2>💳 Plan ဝယ်မည်</h2>
+    <p class="hint">Plan ရွေး → QR ကို KBZPay/WavePay နဲ့ ငွေလွှဲ → screenshot တင် → admin approve ရင် Code ကို Telegram ထဲ auto ပို့ပါမယ်</p>
+    <div id="planPicker"></div>
+    <div class="qr-imgs">
+      <img src="https://i.postimg.cc/KjN8V0mj/Screenshot-2026-07-24-10-56-44-688-mm-com-wavemoney-wavepay.jpg" alt="WavePay QR">
+      <img src="https://i.postimg.cc/J0cs815z/IMG-20260724-105406-453.jpg" alt="KBZPay QR 1">
+      <img src="https://i.postimg.cc/L5BJSH3h/IMG-20260724-105400-422.jpg" alt="KBZPay QR 2">
+    </div>
+    <div class="drop" id="paymentDrop">
+      <input type="file" id="paymentFileInput" accept="image/*">
+      <div class="icon">🧾</div>
+      <div class="label" id="paymentDropLabel">ငွေလွှဲထားတဲ့ Screenshot တင်ပါ</div>
+      <img id="paymentPreview" style="display:none;max-width:100%;border-radius:12px;margin-top:8px;">
+    </div>
+    <button class="secondary" style="margin-top:12px;" id="submitPaymentBtn">Payment ပို့မည်</button>
+    <div class="status" id="paymentStatus"></div>
   </div>
 
   <div class="panel">
@@ -131,10 +187,8 @@
 
   <div class="panel">
     <h2>၂ · ပြောစေချင်တဲ့ စာသား</h2>
-    <div class="field">
-      <textarea id="textInput" placeholder="မြန်မာစာသားကို ဒီနေရာမှာ ရိုက်ထည့်ပါ..."></textarea>
-      <div class="charcount"><span id="charCount">0</span> စာလုံး</div>
-    </div>
+    <textarea id="textInput" placeholder="မြန်မာစာသားကို ဒီနေရာမှာ ရိုက်ထည့်ပါ..."></textarea>
+    <div class="charcount"><span id="charCount">0</span> စာလုံး</div>
   </div>
 
   <button class="primary" id="generateBtn">Clone လုပ်ပါ</button>
@@ -159,7 +213,6 @@
 </div>
 
 <script>
-// ---------- Supabase Auth (Google sign-in / sign-up) ----------
 const SUPABASE_URL = 'https://ykbbvtddcdsidiwldlgu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_GvGS7qgndobzBNO8FV6loQ_stWZpNl8';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -168,25 +221,21 @@ const loginOverlay = document.getElementById('loginOverlay');
 const appContent = document.getElementById('appContent');
 const googleLoginBtn = document.getElementById('googleLoginBtn');
 const signoutBtn = document.getElementById('signoutBtn');
-const userAvatar = document.getElementById('userAvatar');
-const userEmail = document.getElementById('userEmail');
 
 async function refreshAuthUI() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (session && session.user) {
     loginOverlay.style.display = 'none';
     appContent.style.display = 'block';
-    const u = session.user;
-    userEmail.textContent = u.email || '';
-    userAvatar.src = (u.user_metadata && u.user_metadata.avatar_url) || '';
-    userAvatar.style.display = userAvatar.src ? 'inline-block' : 'none';
-
-    // Login ဝင်ပြီးသား account ရဲ့ email ကို access-code field auto-fill လုပ်ဖို့ localStorage ကနေ ပြန်ခေါ်မယ်
-    const savedCode = localStorage.getItem('joker_access_code_' + u.id);
+    document.getElementById('userEmail').textContent = session.user.email;
+    document.getElementById('userAvatar').src = (session.user.user_metadata && session.user.user_metadata.avatar_url) || '';
+    const savedCode = localStorage.getItem('joker_access_code_' + session.user.id);
     if (savedCode) {
       document.getElementById('codeInput').value = savedCode;
       checkBalance(savedCode);
     }
+    const savedTg = localStorage.getItem('joker_telegram_username');
+    if (savedTg) document.getElementById('telegramInput').value = savedTg;
   } else {
     loginOverlay.style.display = 'flex';
     appContent.style.display = 'none';
@@ -194,21 +243,16 @@ async function refreshAuthUI() {
 }
 
 googleLoginBtn.addEventListener('click', async () => {
-  await supabaseClient.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.href },
-  });
+  await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
 });
-
-signoutBtn.addEventListener('click', async () => {
-  await supabaseClient.auth.signOut();
-  refreshAuthUI();
-});
-
-supabaseClient.auth.onAuthStateChange((_event, _session) => { refreshAuthUI(); });
+signoutBtn.addEventListener('click', async () => { await supabaseClient.auth.signOut(); refreshAuthUI(); });
+supabaseClient.auth.onAuthStateChange((_e, _s) => { refreshAuthUI(); });
 refreshAuthUI();
 
-// ---------- Access code balance check ----------
+document.getElementById('telegramInput').addEventListener('change', e => {
+  localStorage.setItem('joker_telegram_username', e.target.value.trim().replace(/^@/, ''));
+});
+
 async function checkBalance(code) {
   const balanceEl = document.getElementById('balanceInfo');
   if (!code) { balanceEl.textContent = ''; return; }
@@ -218,42 +262,97 @@ async function checkBalance(code) {
     if (!res.ok) { balanceEl.textContent = '⚠️ ' + (data.error || 'Code မမှန်ပါ'); return; }
     const expiresDate = new Date(data.expires_at).toLocaleDateString('my-MM');
     balanceEl.textContent = `Plan: ${data.plan} · ကျန်ရှိ: ${data.remaining.toLocaleString()} စာလုံး · သက်တမ်း: ${expiresDate}`;
-  } catch (e) {
-    balanceEl.textContent = '';
-  }
+  } catch (e) { balanceEl.textContent = ''; }
 }
 document.getElementById('codeInput').addEventListener('change', async (e) => {
   const code = e.target.value.trim();
   const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session && session.user && code) {
-    localStorage.setItem('joker_access_code_' + session.user.id, code);
-  }
+  if (session && session.user && code) localStorage.setItem('joker_access_code_' + session.user.id, code);
   checkBalance(code);
 });
 
-const els = {
-  dropZone: document.getElementById('dropZone'),
-  fileInput: document.getElementById('fileInput'),
-  dropLabel: document.getElementById('dropLabel'),
-  fileName: document.getElementById('fileName'),
-  refPreview: document.getElementById('refPreview'),
-  textInput: document.getElementById('textInput'),
-  charCount: document.getElementById('charCount'),
-  generateBtn: document.getElementById('generateBtn'),
-  statusBox: document.getElementById('statusBox'),
-  resultBox: document.getElementById('resultBox'),
-  resultAudio: document.getElementById('resultAudio'),
-  downloadLink: document.getElementById('downloadLink'),
-};
+// ---------- Plan picker + payment submit ----------
+let plans = {}, addonChars = 0, addonAmount = 0, selectedPlan = null;
+let paymentScreenshotB64 = null;
 
+async function loadPlans() {
+  const res = await fetch('/api/plans');
+  const data = await res.json();
+  plans = data.plans; addonChars = data.addonChars; addonAmount = data.addonAmount;
+  const el = document.getElementById('planPicker');
+  el.innerHTML = Object.entries(plans).map(([code, p]) => `
+    <div class="plan-opt" data-code="${code}" onclick="selectPlan('${code}')">
+      <span><b>${code}</b> — ${p.chars.toLocaleString()} စာလုံး / ${p.days} ရက်</span>
+      <span>${p.amount.toLocaleString()} ကျပ်</span>
+    </div>
+  `).join('') + `
+    <div class="plan-opt" data-code="ADDON" onclick="selectPlan('ADDON')">
+      <span><b>Add-on</b> — ${addonChars.toLocaleString()} စာလုံး ထပ်တိုး (active plan ရှိသူများအတွက်)</span>
+      <span>${addonAmount.toLocaleString()} ကျပ်</span>
+    </div>
+  `;
+}
+loadPlans();
+
+function selectPlan(code) {
+  selectedPlan = code;
+  document.querySelectorAll('.plan-opt').forEach(o => o.classList.toggle('selected', o.dataset.code === code));
+}
+
+document.getElementById('paymentDrop').addEventListener('click', () => document.getElementById('paymentFileInput').click());
+document.getElementById('paymentFileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    paymentScreenshotB64 = reader.result.split(',')[1];
+    document.getElementById('paymentPreview').src = reader.result;
+    document.getElementById('paymentPreview').style.display = 'block';
+    document.getElementById('paymentDropLabel').textContent = 'အသစ်တင်ရန် ပြန်နှိပ်ပါ';
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('submitPaymentBtn').addEventListener('click', async () => {
+  const statusEl = document.getElementById('paymentStatus');
+  const telegram_username = document.getElementById('telegramInput').value.trim().replace(/^@/, '');
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  const email = session && session.user ? session.user.email : null;
+
+  if (!selectedPlan) { statusEl.className = 'status show error'; statusEl.textContent = 'Plan ရွေးပါ'; return; }
+  if (!telegram_username) { statusEl.className = 'status show error'; statusEl.textContent = 'Telegram username ထည့်ပါ'; return; }
+  if (!paymentScreenshotB64) { statusEl.className = 'status show error'; statusEl.textContent = 'Screenshot တင်ပါ'; return; }
+
+  statusEl.className = 'status show working'; statusEl.innerHTML = '<div class="spinner"></div><span>ပို့နေပါတယ်...</span>';
+  try {
+    const res = await fetch('/api/payment/submit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, telegram_username, plan_code: selectedPlan, screenshot_base64: paymentScreenshotB64 }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    statusEl.className = 'status show done'; statusEl.textContent = data.message;
+  } catch (err) {
+    statusEl.className = 'status show error'; statusEl.textContent = '❌ ' + err.message;
+  }
+});
+
+// ---------- Voice generation ----------
+const els = {
+  dropZone: document.getElementById('dropZone'), fileInput: document.getElementById('fileInput'),
+  dropLabel: document.getElementById('dropLabel'), fileName: document.getElementById('fileName'),
+  refPreview: document.getElementById('refPreview'), textInput: document.getElementById('textInput'),
+  charCount: document.getElementById('charCount'), generateBtn: document.getElementById('generateBtn'),
+  statusBox: document.getElementById('statusBox'), resultBox: document.getElementById('resultBox'),
+  resultAudio: document.getElementById('resultAudio'), downloadLink: document.getElementById('downloadLink'),
+};
 let referenceFile = null;
 
 els.dropZone.addEventListener('click', () => els.fileInput.click());
 els.dropZone.addEventListener('dragover', e => { e.preventDefault(); els.dropZone.classList.add('drag'); });
 els.dropZone.addEventListener('dragleave', () => els.dropZone.classList.remove('drag'));
 els.dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  els.dropZone.classList.remove('drag');
+  e.preventDefault(); els.dropZone.classList.remove('drag');
   if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
 });
 els.fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
@@ -271,7 +370,6 @@ function setStatus(kind, message, spinner) {
   els.statusBox.className = 'status show ' + kind;
   els.statusBox.innerHTML = (spinner ? '<div class="spinner"></div>' : '') + '<span>' + message + '</span>';
 }
-
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -282,7 +380,22 @@ function fileToBase64(file) {
 }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ---------- Main generate flow — ကိုယ့် backend (/api/...) ကိုပဲ ခေါ်မယ်၊ RunPod key ကို frontend က လုံးဝ မသိပါ ----------
+async function deliverToTelegram(audioB64) {
+  const telegram_username = document.getElementById('telegramInput').value.trim().replace(/^@/, '');
+  if (!telegram_username) return;
+  try {
+    const res = await fetch('/api/telegram/deliver', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ telegram_username, audio_b64: audioB64 }),
+    });
+    const data = await res.json();
+    if (!res.ok && data.needsLink) {
+      document.getElementById('telegramLinkNote').style.display = 'block';
+      document.getElementById('botLink').href = 'https://t.me/jokervoiceclone_bot';
+    }
+  } catch (e) { console.error('Telegram deliver failed', e); }
+}
+
 els.generateBtn.addEventListener('click', async () => {
   const text = els.textInput.value.trim();
   const code = document.getElementById('codeInput').value.trim();
@@ -299,11 +412,9 @@ els.generateBtn.addEventListener('click', async () => {
 
   try {
     const audioB64 = await fileToBase64(referenceFile);
-
     setStatus('working', 'Server ဆီ ပို့နေပါတယ်...', true);
     const runRes = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: text, reference_audio_b64: audioB64, reference_text: "", code: code || undefined, email: userEmailAddr }),
     });
     const runData = await runRes.json();
@@ -316,7 +427,6 @@ els.generateBtn.addEventListener('click', async () => {
     while (attempts < maxAttempts) {
       attempts++;
       await sleep(5000);
-
       const statusRes = await fetch(`/api/status/${jobId}`);
       const statusData = await statusRes.json();
 
@@ -334,16 +444,16 @@ els.generateBtn.addEventListener('click', async () => {
         els.resultAudio.src = url;
         els.downloadLink.href = url;
         els.resultBox.style.display = 'block';
-        setStatus('done', 'ပြီးပါပြီ 🎉');
+        setStatus('done', 'ပြီးပါပြီ 🎉 · Telegram ဆီ ပို့နေပါတယ်...');
         els.generateBtn.disabled = false;
         checkBalance(code);
+        deliverToTelegram(output.audio_b64);
         return;
       }
       if (statusData.status === 'FAILED') throw new Error('Generate မအောင်မြင်ပါ');
       setStatus('working', `Generating... (${statusData.status || 'IN_QUEUE'}, ${attempts * 5}s)`, true);
     }
     throw new Error('အချိန်ကြာလွန်းသွားပါတယ် — စာသားကို တိုစေပြီး ပြန်စမ်းကြည့်ပါ');
-
   } catch (err) {
     console.error(err);
     setStatus('error', '❌ ' + err.message);
