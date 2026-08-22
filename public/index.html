@@ -6,25 +6,26 @@
 <title>JOKER Voice Clone</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700;800&family=Bungee&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --black:#faf6ea;
-    --black-2:#fffdf6;
-    --card:#ffffff;
-    --red:#c8901f;
-    --red-glow:#f0c419;
+    --black:#0b0b0d;
+    --black-2:#151318;
+    --card:#1b1720;
+    --red:#c81f3d;
+    --red-glow:#ff2f52;
     --gold:#d4af37;
-    --gold-soft:#9c7a1e;
-    --ivory:#2b2210;
-    --ivory-dim:rgba(43,34,16,.62);
-    --line:rgba(190,150,60,.2);
+    --gold-soft:#e8cc6a;
+    --ivory:#f2ede4;
+    --ivory-dim:rgba(242,237,228,.6);
+    --line:rgba(242,237,228,.1);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
     background:
-      radial-gradient(900px 500px at 85% -10%, rgba(243,217,128,.4), transparent 60%),
-      radial-gradient(700px 500px at 10% 10%, rgba(212,175,55,.12), transparent 55%),
+      radial-gradient(900px 500px at 85% -10%, rgba(200,31,61,.18), transparent 60%),
+      radial-gradient(700px 500px at 10% 10%, rgba(212,175,55,.08), transparent 55%),
       var(--black);
     color:var(--ivory);
     font-family:'Noto Sans Myanmar', sans-serif;
@@ -40,6 +41,25 @@
     font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ivory-dim);
     border:1px solid var(--line);padding:6px 12px;border-radius:99px;
   }
+  .nav-right{display:flex;align-items:center;gap:12px;}
+  .user-badge{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ivory-dim);}
+  .user-badge img{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);}
+  .signout-btn{background:none;border:1px solid var(--line);color:var(--ivory-dim);font-size:12px;padding:6px 12px;border-radius:99px;cursor:pointer;font-family:'Noto Sans Myanmar';transition:.15s;}
+  .signout-btn:hover{border-color:var(--red);color:var(--red-glow);}
+
+  #loginOverlay{
+    position:fixed;inset:0;background:var(--black);display:flex;align-items:center;justify-content:center;
+    flex-direction:column;padding:24px;z-index:200;text-align:center;
+  }
+  #loginOverlay p{color:var(--ivory-dim);font-size:14px;margin:14px 0 30px;max-width:320px;line-height:1.7;}
+  .google-btn{
+    display:flex;align-items:center;gap:10px;background:var(--ivory);color:#1b1720;
+    border:none;padding:14px 28px;border-radius:10px;font-family:'Noto Sans Myanmar';font-weight:600;
+    font-size:15px;cursor:pointer;transition:.15s;
+  }
+  .google-btn:hover{filter:brightness(.95);}
+  .google-btn svg{width:19px;height:19px;}
+  #siteContent{display:none;}
 
   /* ---------- 3D JESTER LOGO ---------- */
   .logo-scene{perspective:600px;width:46px;height:46px;flex:none;}
@@ -54,10 +74,10 @@
   .logo-face{
     position:absolute;inset:0;backface-visibility:hidden;border-radius:9px;
     display:flex;align-items:center;justify-content:center;
-    box-shadow:0 8px 20px rgba(150,110,10,.3);
+    box-shadow:0 8px 20px rgba(0,0,0,.5);
   }
-  .logo-face.front{background:linear-gradient(155deg, var(--gold), #b8860b);}
-  .logo-face.back{background:linear-gradient(155deg, #fff8e6, #f0d478);transform:rotateY(180deg);}
+  .logo-face.front{background:linear-gradient(155deg, var(--red), #8e1329);}
+  .logo-face.back{background:linear-gradient(155deg, var(--gold-soft), #a3822a);transform:rotateY(180deg);}
   .logo-face svg{width:26px;height:26px;}
 
   h1.wordmark, .wordmark{
@@ -120,19 +140,19 @@
   }
   .plan:hover{
     transform:translateY(-8px) rotateX(4deg) rotateY(-3deg);
-    box-shadow:0 24px 50px rgba(190,150,60,.25), 0 0 0 1px rgba(212,175,55,.35);
+    box-shadow:0 24px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(212,175,55,.25);
     border-color:rgba(212,175,55,.4);
   }
   .plan.featured{
-    background:linear-gradient(165deg, #fff6de, var(--black-2));
-    border:1px solid rgba(212,175,55,.5);
+    background:linear-gradient(165deg, #241119, var(--black-2));
+    border:1px solid rgba(200,31,61,.5);
   }
   .plan.featured::after{
     content:"အရေးဆုံးရွေးချယ်မှု";
     position:absolute;top:-11px;right:20px;
     background:var(--red);color:var(--ivory);font-size:11px;font-family:'JetBrains Mono',monospace;
     padding:4px 10px;border-radius:99px;letter-spacing:.03em;
-    box-shadow:0 4px 10px rgba(212,175,55,.4);
+    box-shadow:0 4px 10px rgba(200,31,61,.4);
   }
   .plan .plan-name{
     font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold-soft);
@@ -157,9 +177,9 @@
     background:rgba(242,237,228,.06);border:1px solid var(--line);color:var(--ivory);
     text-decoration:none;font-size:14px;transition:.2s;
   }
-  .plan.featured .cta{background:linear-gradient(180deg, var(--red-glow), var(--red));border:none;color:#3a2a05;font-weight:700;box-shadow:0 8px 18px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.5);}
+  .plan.featured .cta{background:linear-gradient(180deg, var(--red-glow), var(--red));border:none;color:#fff;font-weight:600;}
   .plan .cta:hover{border-color:var(--gold);color:var(--gold-soft);}
-  .plan.featured .cta:hover{filter:brightness(1.06);color:#3a2a05;}
+  .plan.featured .cta:hover{filter:brightness(1.1);color:#fff;}
 
   /* ---------- ADD-ON ---------- */
   .addon{
@@ -173,10 +193,54 @@
 
   footer{text-align:center;padding:56px 0 40px;color:var(--ivory-dim);font-size:12.5px;line-height:1.8;}
   footer .fw{font-family:'Bungee',cursive;color:var(--red-glow);font-size:15px;display:block;margin-bottom:8px;}
+
+  /* ---------- Payment Modal ---------- */
+  #paymentModal{
+    position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;
+    z-index:300;padding:20px;
+  }
+  #paymentModal.show{display:flex;}
+  .pm-box{
+    background:var(--card);border:1px solid rgba(212,175,55,.3);border-radius:20px;
+    max-width:420px;width:100%;padding:26px;max-height:88vh;overflow-y:auto;position:relative;
+  }
+  .pm-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--ivory-dim);font-size:20px;cursor:pointer;}
+  .pm-box h3{font-family:'Bungee',cursive;font-size:18px;color:var(--gold-soft);margin:0 0 4px;}
+  .pm-plan-name{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--red-glow);margin-bottom:18px;}
+  .pm-qr{width:100%;border-radius:12px;margin-bottom:14px;border:1px solid var(--line);}
+  .pm-step{font-size:13.5px;color:var(--ivory);margin:0 0 8px;line-height:1.7;}
+  .pm-step b{color:var(--gold-soft);}
+  .pm-admins{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .pm-admin{
+    flex:1;min-width:140px;text-align:center;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.3);
+    border-radius:10px;padding:10px;text-decoration:none;color:var(--gold-soft);font-size:13px;font-family:'JetBrains Mono',monospace;
+  }
+  .pm-admin:hover{background:rgba(212,175,55,.15);}
+  .pm-free-link{display:block;text-align:center;margin-top:16px;font-size:12.5px;color:var(--ivory-dim);text-decoration:underline;}
 </style>
 </head>
 <body>
 
+<div id="loginOverlay">
+  <div class="logo-scene" style="width:60px;height:60px;">
+    <div class="logo-card">
+      <div class="logo-face front">
+        <svg viewBox="0 0 24 24" fill="none" style="width:34px;height:34px;"><path d="M12 2 L15 9 L21 6 L18 13 L21 20 H3 L6 13 L3 6 L9 9 Z" fill="#f2ede4"/><circle cx="12" cy="21.5" r="1.4" fill="#d4af37"/><circle cx="6" cy="17" r="1" fill="#d4af37"/><circle cx="18" cy="17" r="1" fill="#d4af37"/></svg>
+      </div>
+      <div class="logo-face back">
+        <svg viewBox="0 0 24 24" fill="none" style="width:34px;height:34px;"><path d="M12 3 C13 3 13.5 5 12.5 6 C14 6 15 8 13.5 9 C15 9.5 15.5 11.5 13.5 12 L13.5 20 H10.5 L10.5 12 C8.5 11.5 9 9.5 10.5 9 C9 8 10 6 11.5 6 C10.5 5 11 3 12 3 Z" fill="#0b0b0d"/></svg>
+      </div>
+    </div>
+  </div>
+  <span class="wordmark" style="margin-top:16px;">JOKER<span class="accent">.</span></span>
+  <p>Voice Clone Studio ကို ဝင်ရောက်ဖို့ Google account နဲ့ Sign in/Sign up လုပ်ပါ</p>
+  <button class="google-btn" id="googleLoginBtn">
+    <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.47c-.28 1.5-1.13 2.78-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.11C3.24 21.3 7.28 24 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.9 12c0-.79.14-1.56.37-2.28V6.61H1.26A11.98 11.98 0 0 0 0 12c0 1.93.46 3.76 1.26 5.39l4.01-3.11Z"/><path fill="#EA4335" d="M12 4.77c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.28 0 3.24 2.7 1.26 6.61l4.01 3.11C6.22 6.87 8.87 4.77 12 4.77Z"/></svg>
+    Google နဲ့ ဝင်မယ်
+  </button>
+</div>
+
+<div id="siteContent">
 <div class="wrap">
   <nav>
     <a href="index.html" class="nav-brand" style="text-decoration:none;">
@@ -192,7 +256,14 @@
       </div>
       <span class="wordmark">JOKER<span class="accent">.</span></span>
     </a>
-    <div class="nav-domain">jokervoiceclone.org</div>
+    <div class="nav-right">
+      <div class="nav-domain">melvoiceclone.org</div>
+      <div class="user-badge">
+        <img id="userAvatar" src="" alt="" style="display:none;">
+        <span id="userEmail"></span>
+        <button class="signout-btn" id="signoutBtn">Sign out</button>
+      </div>
+    </div>
   </nav>
 
   <section class="hero">
@@ -203,10 +274,10 @@
     <div class="trial-banner">
       <span class="tag">🎁 FREE TRIAL</span>
       <span class="desc">နေ့စဉ်အစမ်းသုံး — တစ်နေ့တစ်ကြိမ် / 500 စာလုံး</span>
-      <span class="domain">jokervoiceclone.org</span>
+      <span class="domain">melvoiceclone.org</span>
     </div>
     <div style="margin-top:24px;">
-      <a href="app.html" style="display:inline-block;font-family:'Bungee',cursive;font-size:15px;color:#3a2a05;background:linear-gradient(180deg,var(--red-glow),var(--red));padding:14px 32px;border-radius:16px;text-decoration:none;box-shadow:0 10px 26px rgba(212,175,55,.4), inset 0 1px 0 rgba(255,255,255,.5);">အခုစမ်းကြည့်ရန် →</a>
+      <a href="app.html" style="display:inline-block;font-family:'Bungee',cursive;font-size:15px;color:#fff;background:linear-gradient(180deg,var(--red-glow),var(--red));padding:14px 32px;border-radius:12px;text-decoration:none;box-shadow:0 10px 26px rgba(200,31,61,.35);">အခုစမ်းကြည့်ရန် →</a>
     </div>
   </section>
 
@@ -225,7 +296,7 @@
         <div class="stat"><span class="k">စာလုံးရေ</span><span class="v">100,000</span></div>
         <div class="stat"><span class="k">သက်တမ်း</span><span class="v">7 ရက်</span></div>
         <div class="extend">ထပ်တိုးခွင့် <b>မရှိပါ</b></div>
-        <a class="cta" href="app.html">ရွေးမယ်</a>
+        <a class="cta" href="javascript:void(0)" onclick="openPayment('7A','10,000 ကျပ်')">ရွေးမယ်</a>
       </div>
 
       <div class="plan">
@@ -235,7 +306,7 @@
         <div class="stat"><span class="k">စာလုံးရေ</span><span class="v">250,000</span></div>
         <div class="stat"><span class="k">သက်တမ်း</span><span class="v">7 ရက်</span></div>
         <div class="extend">ထပ်တိုးခွင့် <b>မရှိပါ</b></div>
-        <a class="cta" href="app.html">ရွေးမယ်</a>
+        <a class="cta" href="javascript:void(0)" onclick="openPayment('7B','20,000 ကျပ်')">ရွေးမယ်</a>
       </div>
 
       <div class="plan">
@@ -245,7 +316,7 @@
         <div class="stat"><span class="k">စာလုံးရေ</span><span class="v">300,000</span></div>
         <div class="stat"><span class="k">သက်တမ်း</span><span class="v">30 ရက်</span></div>
         <div class="extend">ထပ်တိုးရရှိနိုင် <b>200,000</b> စာလုံးအထိ</div>
-        <a class="cta" href="app.html">ရွေးမယ်</a>
+        <a class="cta" href="javascript:void(0)" onclick="openPayment('30A','30,000 ကျပ်')">ရွေးမယ်</a>
       </div>
 
       <div class="plan featured">
@@ -255,7 +326,7 @@
         <div class="stat"><span class="k">စာလုံးရေ</span><span class="v">1,000,000</span></div>
         <div class="stat"><span class="k">သက်တမ်း</span><span class="v">30 ရက်</span></div>
         <div class="extend">ထပ်တိုးရရှိနိုင် <b>500,000</b> စာလုံးအထိ</div>
-        <a class="cta" href="app.html">ရွေးမယ်</a>
+        <a class="cta" href="javascript:void(0)" onclick="openPayment('30B','50,000 ကျပ်')">ရွေးမယ်</a>
       </div>
 
       <div class="plan">
@@ -265,7 +336,7 @@
         <div class="stat"><span class="k">စာလုံးရေ</span><span class="v">2,000,000</span></div>
         <div class="stat"><span class="k">သက်တမ်း</span><span class="v">30 ရက်</span></div>
         <div class="extend">ထပ်တိုးရရှိနိုင် <b>500,000</b> စာလုံးအထိ</div>
-        <a class="cta" href="app.html">ရွေးမယ်</a>
+        <a class="cta" href="javascript:void(0)" onclick="openPayment('30C','80,000 ကျပ်')">ရွေးမယ်</a>
       </div>
 
     </div>
@@ -281,9 +352,86 @@
 
   <footer>
     <span class="fw">JOKER Voice Clone</span>
-    jokervoiceclone.org · အသံရှင်ရဲ့ ခွင့်ပြုချက်ဖြင့်သာ အသုံးပြုပါ
+    melvoiceclone.org · အသံရှင်ရဲ့ ခွင့်ပြုချက်ဖြင့်သာ အသုံးပြုပါ
   </footer>
 </div>
+</div>
+
+<div id="paymentModal">
+  <div class="pm-box">
+    <button class="pm-close" onclick="closePayment()">✕</button>
+    <h3>💳 ငွေလွှဲ Payment</h3>
+    <div class="pm-plan-name" id="pmPlanInfo"></div>
+
+    <img class="pm-qr" src="https://i.postimg.cc/KjN8V0mj/Screenshot-2026-07-24-10-56-44-688-mm-com-wavemoney-wavepay.jpg" alt="Payment QR">
+    <img class="pm-qr" src="https://i.postimg.cc/J0cs815z/IMG-20260724-105406-453.jpg" alt="Payment info">
+    <img class="pm-qr" src="https://i.postimg.cc/L5BJSH3h/IMG-20260724-105400-422.jpg" alt="Payment info 2">
+
+    <p class="pm-step"><b>၁.</b> အထက်က QR/Account ကို Wave Pay/KBZPay နဲ့ ငွေလွှဲပါ</p>
+    <p class="pm-step"><b>၂.</b> လွှဲပြီးသား Screenshot ကို အောက်က Admin Telegram တစ်ယောက်ဆီ ပို့ပါ (Plan အမည် ထည့်ရေးပါ)</p>
+    <p class="pm-step"><b>၃.</b> Admin က Access Code ထုတ်ပြီး Telegram ကနေ ပြန်ပို့ပေးပါလိမ့်မယ်</p>
+
+    <div class="pm-admins">
+      <a class="pm-admin" href="https://t.me/kopyae131019" target="_blank">@kopyae131019</a>
+      <a class="pm-admin" href="https://t.me/SZMOFF848" target="_blank">@SZMOFF848</a>
+    </div>
+
+    <a class="pm-free-link" href="app.html">— Code မရသေးဘူးလား? Free trial စမ်းကြည့်ရန် —</a>
+  </div>
+</div>
+
+<script>
+function openPayment(planId, price) {
+  document.getElementById('pmPlanInfo').textContent = `Plan: ${planId}  ·  ${price}`;
+  document.getElementById('paymentModal').classList.add('show');
+}
+function closePayment() {
+  document.getElementById('paymentModal').classList.remove('show');
+}
+</script>
+
+<script>
+const SUPABASE_URL = 'https://ykbbvtddcdsidiwldlgu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_GvGS7qgndobzBNO8FV6loQ_stWZpNl8';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const loginOverlay = document.getElementById('loginOverlay');
+const siteContent = document.getElementById('siteContent');
+const googleLoginBtn = document.getElementById('googleLoginBtn');
+const signoutBtn = document.getElementById('signoutBtn');
+const userAvatar = document.getElementById('userAvatar');
+const userEmail = document.getElementById('userEmail');
+
+async function refreshAuthUI() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session && session.user) {
+    loginOverlay.style.display = 'none';
+    siteContent.style.display = 'block';
+    const u = session.user;
+    userEmail.textContent = u.email || '';
+    const avatarUrl = (u.user_metadata && u.user_metadata.avatar_url) || '';
+    if (avatarUrl) { userAvatar.src = avatarUrl; userAvatar.style.display = 'inline-block'; }
+  } else {
+    loginOverlay.style.display = 'flex';
+    siteContent.style.display = 'none';
+  }
+}
+
+googleLoginBtn.addEventListener('click', async () => {
+  await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href },
+  });
+});
+
+signoutBtn.addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  refreshAuthUI();
+});
+
+supabaseClient.auth.onAuthStateChange(() => { refreshAuthUI(); });
+refreshAuthUI();
+</script>
 
 </body>
 </html>
