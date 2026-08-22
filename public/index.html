@@ -6,6 +6,7 @@
 <title>JOKER Voice Clone</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700;800&family=Bungee&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --black:#0b0b0d;
@@ -40,6 +41,25 @@
     font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ivory-dim);
     border:1px solid var(--line);padding:6px 12px;border-radius:99px;
   }
+  .nav-right{display:flex;align-items:center;gap:12px;}
+  .user-badge{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ivory-dim);}
+  .user-badge img{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);}
+  .signout-btn{background:none;border:1px solid var(--line);color:var(--ivory-dim);font-size:12px;padding:6px 12px;border-radius:99px;cursor:pointer;font-family:'Noto Sans Myanmar';transition:.15s;}
+  .signout-btn:hover{border-color:var(--red);color:var(--red-glow);}
+
+  #loginOverlay{
+    position:fixed;inset:0;background:var(--black);display:flex;align-items:center;justify-content:center;
+    flex-direction:column;padding:24px;z-index:200;text-align:center;
+  }
+  #loginOverlay p{color:var(--ivory-dim);font-size:14px;margin:14px 0 30px;max-width:320px;line-height:1.7;}
+  .google-btn{
+    display:flex;align-items:center;gap:10px;background:var(--ivory);color:#1b1720;
+    border:none;padding:14px 28px;border-radius:10px;font-family:'Noto Sans Myanmar';font-weight:600;
+    font-size:15px;cursor:pointer;transition:.15s;
+  }
+  .google-btn:hover{filter:brightness(.95);}
+  .google-btn svg{width:19px;height:19px;}
+  #siteContent{display:none;}
 
   /* ---------- 3D JESTER LOGO ---------- */
   .logo-scene{perspective:600px;width:46px;height:46px;flex:none;}
@@ -177,6 +197,26 @@
 </head>
 <body>
 
+<div id="loginOverlay">
+  <div class="logo-scene" style="width:60px;height:60px;">
+    <div class="logo-card">
+      <div class="logo-face front">
+        <svg viewBox="0 0 24 24" fill="none" style="width:34px;height:34px;"><path d="M12 2 L15 9 L21 6 L18 13 L21 20 H3 L6 13 L3 6 L9 9 Z" fill="#f2ede4"/><circle cx="12" cy="21.5" r="1.4" fill="#d4af37"/><circle cx="6" cy="17" r="1" fill="#d4af37"/><circle cx="18" cy="17" r="1" fill="#d4af37"/></svg>
+      </div>
+      <div class="logo-face back">
+        <svg viewBox="0 0 24 24" fill="none" style="width:34px;height:34px;"><path d="M12 3 C13 3 13.5 5 12.5 6 C14 6 15 8 13.5 9 C15 9.5 15.5 11.5 13.5 12 L13.5 20 H10.5 L10.5 12 C8.5 11.5 9 9.5 10.5 9 C9 8 10 6 11.5 6 C10.5 5 11 3 12 3 Z" fill="#0b0b0d"/></svg>
+      </div>
+    </div>
+  </div>
+  <span class="wordmark" style="margin-top:16px;">JOKER<span class="accent">.</span></span>
+  <p>Voice Clone Studio ကို ဝင်ရောက်ဖို့ Google account နဲ့ Sign in/Sign up လုပ်ပါ</p>
+  <button class="google-btn" id="googleLoginBtn">
+    <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.47c-.28 1.5-1.13 2.78-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.11C3.24 21.3 7.28 24 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.9 12c0-.79.14-1.56.37-2.28V6.61H1.26A11.98 11.98 0 0 0 0 12c0 1.93.46 3.76 1.26 5.39l4.01-3.11Z"/><path fill="#EA4335" d="M12 4.77c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.28 0 3.24 2.7 1.26 6.61l4.01 3.11C6.22 6.87 8.87 4.77 12 4.77Z"/></svg>
+    Google နဲ့ ဝင်မယ်
+  </button>
+</div>
+
+<div id="siteContent">
 <div class="wrap">
   <nav>
     <a href="index.html" class="nav-brand" style="text-decoration:none;">
@@ -192,7 +232,14 @@
       </div>
       <span class="wordmark">JOKER<span class="accent">.</span></span>
     </a>
-    <div class="nav-domain">melvoiceclone.org</div>
+    <div class="nav-right">
+      <div class="nav-domain">melvoiceclone.org</div>
+      <div class="user-badge">
+        <img id="userAvatar" src="" alt="" style="display:none;">
+        <span id="userEmail"></span>
+        <button class="signout-btn" id="signoutBtn">Sign out</button>
+      </div>
+    </div>
   </nav>
 
   <section class="hero">
@@ -284,6 +331,50 @@
     melvoiceclone.org · အသံရှင်ရဲ့ ခွင့်ပြုချက်ဖြင့်သာ အသုံးပြုပါ
   </footer>
 </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ykbbvtddcdsidiwldlgu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_GvGS7qgndobzBNO8FV6loQ_stWZpNl8';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const loginOverlay = document.getElementById('loginOverlay');
+const siteContent = document.getElementById('siteContent');
+const googleLoginBtn = document.getElementById('googleLoginBtn');
+const signoutBtn = document.getElementById('signoutBtn');
+const userAvatar = document.getElementById('userAvatar');
+const userEmail = document.getElementById('userEmail');
+
+async function refreshAuthUI() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session && session.user) {
+    loginOverlay.style.display = 'none';
+    siteContent.style.display = 'block';
+    const u = session.user;
+    userEmail.textContent = u.email || '';
+    const avatarUrl = (u.user_metadata && u.user_metadata.avatar_url) || '';
+    if (avatarUrl) { userAvatar.src = avatarUrl; userAvatar.style.display = 'inline-block'; }
+  } else {
+    loginOverlay.style.display = 'flex';
+    siteContent.style.display = 'none';
+  }
+}
+
+googleLoginBtn.addEventListener('click', async () => {
+  await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href },
+  });
+});
+
+signoutBtn.addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  refreshAuthUI();
+});
+
+supabaseClient.auth.onAuthStateChange(() => { refreshAuthUI(); });
+refreshAuthUI();
+</script>
 
 </body>
 </html>
