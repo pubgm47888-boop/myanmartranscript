@@ -4,6 +4,8 @@ const crypto = require('crypto');
 
 // ⚠️ Render Free tier မှာ disk က deploy တိုင်း reset ဖြစ်တတ်ပါတယ်
 // Production အတွက် Render "Persistent Disk" ($1/mo~) ထည့်ဖို့ လိုအပ်ပါတယ်
+// (Render Dashboard → Service → Disks → Add Disk → mount path "/data" ထည့်ပြီး
+//  DB_PATH environment variable ကို "/data/db.sqlite" လို့ ထားပါ)
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data.sqlite');
 const db = new Database(DB_PATH);
 
@@ -31,36 +33,24 @@ db.exec(`
     chars_used INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (email, day)
   );
-  CREATE TABLE IF NOT EXISTS payments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT,
-    telegram_username TEXT,
-    plan_code TEXT NOT NULL,
-    amount INTEGER NOT NULL,
-    screenshot_b64 TEXT,
-    status TEXT NOT NULL DEFAULT 'pending',
-    code TEXT,
-    created_at INTEGER NOT NULL,
-    decided_at INTEGER
-  );
-  CREATE TABLE IF NOT EXISTS telegram_links (
+  CREATE TABLE IF NOT EXISTS telegram_users (
     username TEXT PRIMARY KEY,
-    chat_id TEXT NOT NULL,
-    linked_at INTEGER NOT NULL
+    chat_id INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
   );
 `);
 
-const FREE_DAILY_CHARS = 500;
+const FREE_DAILY_CHARS = 500; // Pricing page ထဲက "နေ့စဉ်အစမ်းသုံး" quota
 
+// Plan (business rule) — pricing page ထဲက plan တွေနဲ့ ကိုက်အောင် ထားထားတယ်
 const PLANS = {
-  '7A':  { days: 7,  chars: 100000,  maxExtra: 0,      amount: 10000 },
-  '7B':  { days: 7,  chars: 250000,  maxExtra: 0,      amount: 20000 },
-  '30A': { days: 30, chars: 300000,  maxExtra: 200000, amount: 30000 },
-  '30B': { days: 30, chars: 1000000, maxExtra: 500000, amount: 50000 },
-  '30C': { days: 30, chars: 2000000, maxExtra: 500000, amount: 80000 },
+  '7A':  { days: 7,  chars: 100000,  maxExtra: 0 },
+  '7B':  { days: 7,  chars: 250000,  maxExtra: 0 },
+  '30A': { days: 30, chars: 300000,  maxExtra: 200000 },
+  '30B': { days: 30, chars: 1000000, maxExtra: 500000 },
+  '30C': { days: 30, chars: 2000000, maxExtra: 500000 },
 };
-const ADDON_CHARS = 100000;
-const ADDON_AMOUNT = 5000;
+const ADDON_CHARS = 100000; // 5,000 ကျပ် တစ်ခါ ထပ်တိုးရင် ရမယ့် စာလုံးရေ
 
 function generateCode() {
   return 'JOKER-' + crypto.randomBytes(4).toString('hex').toUpperCase();
@@ -116,6 +106,7 @@ function setActive(code, active) {
   return getLicense(code);
 }
 
+// Code ကို login ဝင်ထားတဲ့ user ရဲ့ email နဲ့ ချိတ်ဆက်ပေးတယ် (ပထမဆုံး သုံးတုန်းက)
 function attachEmail(code, email) {
   const lic = getLicense(code);
   if (lic && !lic.email && email) {
@@ -128,7 +119,7 @@ function getLicensesByEmail(email) {
 }
 
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 }
 
 function getFreeUsageToday(email) {
@@ -150,49 +141,30 @@ function checkAndReserveFree(email, charCount) {
   return { ok: true, remaining: FREE_DAILY_CHARS - (used + charCount) };
 }
 
-function createPayment({ email, telegram_username, plan_code, amount, screenshot_b64 }) {
-  const now = Date.now();
-  const info = db.prepare(`
-    INSERT INTO payments (email, telegram_username, plan_code, amount, screenshot_b64, status, created_at)
-    VALUES (?, ?, ?, ?, ?, 'pending', ?)
-  `).run(email || null, telegram_username || null, plan_code, amount, screenshot_b64 || null, now);
-  return getPayment(info.lastInsertRowid);
+function normalizeUsername(u) {
+  return (u || '').replace(/^@/, '').trim().toLowerCase();
 }
 
-function getPayment(id) {
-  return db.prepare('SELECT * FROM payments WHERE id = ?').get(id);
-}
-
-function listPayments(status) {
-  if (status) return db.prepare('SELECT * FROM payments WHERE status = ? ORDER BY created_at DESC').all(status);
-  return db.prepare('SELECT * FROM payments ORDER BY created_at DESC').all();
-}
-
-function decidePayment(id, status, code) {
-  db.prepare('UPDATE payments SET status = ?, code = ?, decided_at = ? WHERE id = ?')
-    .run(status, code || null, Date.now(), id);
-  return getPayment(id);
-}
-
-function linkTelegram(username, chatId) {
+function saveTelegramUser(username, chatId) {
+  const uname = normalizeUsername(username);
+  if (!uname) return;
   db.prepare(`
-    INSERT INTO telegram_links (username, chat_id, linked_at) VALUES (?, ?, ?)
-    ON CONFLICT(username) DO UPDATE SET chat_id = excluded.chat_id, linked_at = excluded.linked_at
-  `).run(username.toLowerCase(), String(chatId), Date.now());
+    INSERT INTO telegram_users (username, chat_id, updated_at) VALUES (?, ?, ?)
+    ON CONFLICT(username) DO UPDATE SET chat_id = excluded.chat_id, updated_at = excluded.updated_at
+  `).run(uname, chatId, Date.now());
 }
 
 function getTelegramChatId(username) {
-  if (!username) return null;
-  const row = db.prepare('SELECT chat_id FROM telegram_links WHERE username = ?').get(username.toLowerCase());
+  const uname = normalizeUsername(username);
+  const row = db.prepare('SELECT chat_id FROM telegram_users WHERE username = ?').get(uname);
   return row ? row.chat_id : null;
 }
 
 module.exports = {
-  PLANS, ADDON_CHARS, ADDON_AMOUNT, FREE_DAILY_CHARS,
+  PLANS, ADDON_CHARS, FREE_DAILY_CHARS,
   createLicense, getLicense, listLicenses,
   checkAndReserve, extendLicense, setActive,
   attachEmail, getLicensesByEmail,
   getFreeUsageToday, checkAndReserveFree,
-  createPayment, getPayment, listPayments, decidePayment,
-  linkTelegram, getTelegramChatId,
+  saveTelegramUser, getTelegramChatId,
 };
