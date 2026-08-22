@@ -21,6 +21,29 @@
     --shadow-dark: 8px 8px 18px rgba(180,140,60,.28);
     --shadow-light: -8px -8px 18px rgba(255,255,255,.9);
   }
+  [data-theme="dark"]{
+    --bg:#1c1710;
+    --card:#26200f;
+    --gold:#e0ac2b;
+    --gold-deep:#f6d888;
+    --gold-light:#8a6a1e;
+    --ink:#f2e8cf;
+    --ink-dim:#b8a878;
+    --shadow-dark: 8px 8px 18px rgba(0,0,0,.5);
+    --shadow-light: -6px -6px 16px rgba(255,255,255,.05);
+  }
+  [data-theme="dark"] body{background: radial-gradient(1000px 600px at 20% -10%, #2e2612, transparent 60%), var(--bg);}
+  [data-theme="dark"] input[type=text], [data-theme="dark"] textarea{box-shadow: inset 4px 4px 10px rgba(0,0,0,.4), inset -3px -3px 8px rgba(255,255,255,.04);}
+  [data-theme="dark"] .drop{box-shadow: inset 4px 4px 10px rgba(0,0,0,.35), inset -3px -3px 8px rgba(255,255,255,.04);}
+
+  .theme-toggle{
+    background:var(--card);border:none;width:38px;height:38px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    box-shadow: 4px 4px 10px rgba(180,140,60,.25), -4px -4px 10px rgba(255,255,255,.8);
+    transition:.2s;
+  }
+  [data-theme="dark"] .theme-toggle{box-shadow: 4px 4px 10px rgba(0,0,0,.4), -3px -3px 8px rgba(255,255,255,.05);}
+  .theme-toggle:hover{transform:rotate(15deg);}
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
@@ -67,14 +90,27 @@
 
   button.primary{
     width:100%;padding:17px;border:none;border-radius:20px;
-    background:linear-gradient(180deg, var(--gold-light), var(--gold));
+    background:linear-gradient(115deg, var(--gold), var(--gold-light), var(--gold));
+    background-size:200% auto;
     color:#4a2f08;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:17px;cursor:pointer;
     box-shadow: 6px 6px 14px rgba(180,140,60,.35), -4px -4px 10px rgba(255,255,255,.85);
-    transition: transform .12s ease, box-shadow .12s ease;
+    transition: transform .12s ease, box-shadow .12s ease, background-position 1.2s ease;
+    animation: shimmerBtn 4s ease-in-out infinite;
   }
+  @keyframes shimmerBtn{0%,100%{background-position:0% center;}50%{background-position:100% center;}}
   button.primary:hover{transform:translateY(-2px);}
   button.primary:active{transform:translateY(1px) scale(.98); box-shadow: 3px 3px 8px rgba(180,140,60,.35), -2px -2px 6px rgba(255,255,255,.7);}
-  button.primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  button.primary:disabled{opacity:.5;cursor:not-allowed;transform:none;animation:none;}
+
+  .brand-mark{position:relative;}
+  .panel{position:relative;overflow:hidden;}
+  .panel::after{
+    content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
+    background:linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent);
+    transform:skewX(-20deg);animation:panelShine 6s ease-in-out infinite;pointer-events:none;
+  }
+  @keyframes panelShine{0%{left:-60%;}35%,100%{left:130%;}}
+  [data-theme="dark"] .panel::after{background:linear-gradient(100deg, transparent, rgba(224,172,43,.12), transparent);}
 
   .status{margin-top:14px;padding:13px 16px;border-radius:16px;font-size:14px;display:none;align-items:center;gap:10px;}
   .status.show{display:flex;}
@@ -116,6 +152,10 @@
   .google-btn:hover{transform:translateY(-2px);}
   .google-btn svg{width:19px;height:19px;}
   #appContent{display:none;}
+  body{animation:pageFadeIn .5s ease both;}
+  @keyframes pageFadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .panel{animation:panelFadeIn .45s ease both;}
+  @keyframes panelFadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
@@ -138,6 +178,7 @@
       <span class="brand-sub">Voice Clone Studio</span>
     </div>
     <div class="user-badge" id="userBadge">
+      <button class="theme-toggle" id="themeToggle">🌙</button>
       <img id="userAvatar" src="" alt="" style="display:none;">
       <span id="userEmail"></span>
       <button class="signout-btn" id="signoutBtn">Sign out</button>
@@ -242,22 +283,40 @@ fetch('/api/telegram-bot-info').then(r => r.json()).then(d => {
   if (d.username) document.getElementById('botStartLink').href = `https://t.me/${d.username}?start=1`;
 }).catch(() => {});
 
+// ---------- Day / Night theme toggle ----------
+const themeToggle = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('joker_theme', theme);
+}
+applyTheme(localStorage.getItem('joker_theme') || 'light');
+themeToggle.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
+
 async function checkBalance(code) {
   const balanceEl = document.getElementById('balanceInfo');
-  if (!code) { balanceEl.textContent = ''; return; }
+  if (!code) { balanceEl.textContent = '🎁 Code မထည့်ရင် နေ့စဉ် အခမဲ့ 500 စာလုံး trial သုံးမိပါလိမ့်မယ်'; return true; }
   try {
     const res = await fetch(`/api/license/${encodeURIComponent(code)}`);
     const data = await res.json();
-    if (!res.ok) { balanceEl.textContent = '⚠️ ' + (data.error || 'Code မမှန်ပါ'); return; }
+    if (!res.ok) { balanceEl.textContent = '⚠️ ' + (data.error || 'Code မမှန်ပါ'); return false; }
     const expiresDate = new Date(data.expires_at).toLocaleDateString('my-MM');
-    balanceEl.textContent = `Plan: ${data.plan} · ကျန်ရှိ: ${data.remaining.toLocaleString()} စာလုံး · သက်တမ်း: ${expiresDate}`;
-  } catch (e) { balanceEl.textContent = ''; }
+    balanceEl.textContent = `✅ Plan: ${data.plan} · ကျန်ရှိ: ${data.remaining.toLocaleString()} စာလုံး · သက်တမ်း: ${expiresDate}`;
+    return true;
+  } catch (e) { balanceEl.textContent = ''; return false; }
 }
 document.getElementById('codeInput').addEventListener('change', async (e) => {
   const code = e.target.value.trim();
   const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session && session.user && code) localStorage.setItem('joker_access_code_' + session.user.id, code);
-  checkBalance(code);
+  const valid = await checkBalance(code);
+  if (session && session.user) {
+    const key = 'joker_access_code_' + session.user.id;
+    if (code && valid) localStorage.setItem(key, code);
+    else if (!code) localStorage.removeItem(key); // Code field ကို ရှင်းလိုက်ရင် stale-code cache ကိုပါ ရှင်းမယ်
+  }
 });
 document.getElementById('telegramInput').addEventListener('change', async (e) => {
   const tg = e.target.value.trim();
